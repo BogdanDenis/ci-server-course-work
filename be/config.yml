@@ -1,0 +1,8 @@
+projects:
+  -
+    key: 'test'
+    repoPath: '/home/dbohdan/Documents/cdp/CDP-homeworks'
+    branch: 'master'
+    pollTimeout: 5
+    steps:
+      - 'RUN echo $PATH'
