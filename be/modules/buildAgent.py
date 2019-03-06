@@ -10,7 +10,8 @@ _cliProvider = None
 if sys.platform == 'linux' or sys.platform == 'linux2':
 	_cliProvider = cliProvider.createCli("terminal-cli")
 elif sys.platform == 'win32' or sys.platform == 'win64':
-	_cliProvider = cliProvider.createCli("win32_COM")
+	#_cliProvider = cliProvider.createCli("win32_COM")
+	_cliProvider = cliProvider.createCli("terminal-cli")
 
 
 
@@ -46,7 +47,7 @@ class BuildAgent:
 			'line:': line
 		}
 
-		EventBus.publish(EVENTS.NEW_OUTPUT_LINE, data)
+		EventBus.publish(EVENTS['NEW_OUTPUT_LINE'], data)
 		
 	def startPolling(self):
 		self.dbConnection = dbConnection.createConnection('./ciserver.db')

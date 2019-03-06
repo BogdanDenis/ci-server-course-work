@@ -1,0 +1,39 @@
+// sample1.idl : IDL source for sample1.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (sample1.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+	[
+		object,
+		uuid(1638ED3E-43E1-11D6-89B2-00010302158B),
+		dual,
+		helpstring("ICGreet Interface"),
+		pointer_default(unique)
+	]
+	interface ICGreet : IDispatch
+	{
+		[id(1), helpstring("method SayHello")] HRESULT SayHello([in] BSTR name, [out,retval] BSTR *retstr);
+	};
+
+[
+	uuid(1638ED31-43E1-11D6-89B2-00010302158B),
+	version(1.0),
+	helpstring("sample1 1.0 Type Library")
+]
+library SAMPLE1Lib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+	[
+		uuid(1638ED3F-43E1-11D6-89B2-00010302158B),
+		helpstring("CGreet Class")
+	]
+	coclass CGreet
+	{
+		[default] interface ICGreet;
+	};
+};

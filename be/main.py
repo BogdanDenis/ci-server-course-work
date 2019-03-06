@@ -1,5 +1,4 @@
 import os
-import yaml
 from modules.dbConnection import DB_CONNECTION as conn
 from modules import db
 from modules import buildAgent

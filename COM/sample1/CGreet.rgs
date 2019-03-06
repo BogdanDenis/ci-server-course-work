@@ -1,0 +1,26 @@
+HKCR
+{
+	Sample1.CGreet.1 = s 'CGreet Class'
+	{
+		CLSID = s '{1638ED3F-43E1-11D6-89B2-00010302158B}'
+	}
+	Sample1.CGreet = s 'CGreet Class'
+	{
+		CLSID = s '{1638ED3F-43E1-11D6-89B2-00010302158B}'
+		CurVer = s 'Sample1.CGreet.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {1638ED3F-43E1-11D6-89B2-00010302158B} = s 'CGreet Class'
+		{
+			ProgID = s 'Sample1.CGreet.1'
+			VersionIndependentProgID = s 'Sample1.CGreet'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			'TypeLib' = s '{1638ED31-43E1-11D6-89B2-00010302158B}'
+		}
+	}
+}

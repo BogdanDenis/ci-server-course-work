@@ -1,0 +1,16 @@
+﻿  StdAfx.cpp
+  CGreet.cpp
+c:\users\denys_bohdan\downloads\com_demo\com_demo3\sample1\cgreet.cpp(15): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17134.0\ucrt\stdio.h(1774): note: see declaration of 'sprintf'
+  sample1.cpp
+  Generating Code...
+.\sample1.def : warning LNK4222: exported symbol 'DllCanUnloadNow' should not be assigned an ordinal
+.\sample1.def : warning LNK4222: exported symbol 'DllGetClassObject' should not be assigned an ordinal
+.\sample1.def : warning LNK4222: exported symbol 'DllRegisterServer' should not be assigned an ordinal
+.\sample1.def : warning LNK4222: exported symbol 'DllUnregisterServer' should not be assigned an ordinal
+     Creating library .\ReleaseMinSize\sample1.lib and object .\ReleaseMinSize\sample1.exp
+  sample1.vcxproj -> C:\Users\Denys_Bohdan\Downloads\COM_demo\COM_Demo3\sample1\.\ReleaseMinSize\sample1.dll
+  Performing registration
+E:\Programs\Visual Studio 2017\Common7\IDE\VC\VCTargets\Microsoft.CppCommon.targets(217,5): error MSB3075: The command "regsvr32 /s /c "C:\Users\Denys_Bohdan\Downloads\COM_demo\COM_Demo3\sample1\.\ReleaseMinSize\sample1.dll" 
+E:\Programs\Visual Studio 2017\Common7\IDE\VC\VCTargets\Microsoft.CppCommon.targets(217,5): error MSB3075: echo regsvr32 exec. time > ".\ReleaseMinSize\regsvr32.trg" 
+E:\Programs\Visual Studio 2017\Common7\IDE\VC\VCTargets\Microsoft.CppCommon.targets(217,5): error MSB3075: :VCEnd" exited with code 5. Please verify that you have sufficient rights to run this command.
