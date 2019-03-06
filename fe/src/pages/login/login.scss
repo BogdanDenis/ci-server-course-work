@@ -1,0 +1,29 @@
+.login-page {
+	min-height: 100vh;
+}
+
+.login-form {
+	&-wrapper {
+		position: relative;
+
+		width: 90%;
+		max-width: 450px;
+		padding: 0px;
+		border-radius: 10px 10px 10px 10px;
+
+		text-align: center;
+
+		background: #fff;
+		box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
+	}
+
+	&-footer {
+		padding: 25px;
+		border-top: 1px solid #dce8f1;
+	
+		text-align: center;
+	
+		border-radius: 0 0 10px 10px;
+		background-color: #f6f6f6;
+	}
+}
