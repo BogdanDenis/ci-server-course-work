@@ -1,65 +1,40 @@
 import os
-from modules.dbConnection import DB_CONNECTION as conn
-from modules import db
-from modules import buildAgent
+from modules import buildAgent, dbConnection, helpers
+from modules.eventBus import EVENT_BUS as EventBus
+from constants.events import EVENTS
+
 import api
 from api.services.project import projectDao
 
-def initDB():
-	file = './ciserver.db'
+def initBuildAgent(project):
+	steps = project['steps']
 
-	createProjectTable = """
-		CREATE TABLE IF NOT EXISTS project (
-			id integer PRIMARY KEY AUTOINCREMENT,
-			key text UNIQUE,
-			repoPath text,
-			branch text,
-			pollTimeout integer,
-			steps text,
-			lastCommit text
-		);
-	"""
-
-	if conn is not None:
-		db.createTable(conn, createProjectTable)
+	if steps != None:
+		steps = steps.split(';;')
 	else:
-		print ('Error! Cannot create the database connection.')
+		steps = []
+	agent = buildAgent.BuildAgent({
+		'key': project['key'],
+		'repoPath': project['repoPath'],
+		'branch': project['branch'],
+		'pollTimeout': project['pollTimeout'],
+		'steps': steps
+	})
 
-	return conn
+	agent.init()
 
-def initBuildAgents(conn):
-	projects = projectDao.getProjects(conn)
+def initBuildAgents():
+	projects = projectDao.getProjects()
+	projects = map(lambda proj: helpers.mongoToDict(proj), projects)
 	for project in projects:
-		#with open("config.yml", 'r') as ymlfile:
-		#	cfg = yaml.load(ymlfile)
-		
-		#projects = cfg['projects']
-		#for project in projects:
-		steps = project['steps']
-		print (steps)
-		if steps != None:
-			steps = steps.split(';;')
-		else:
-			steps = []
-		agent = buildAgent.BuildAgent({
-			'key': project['key'],
-			'repoPath': project['repoPath'],
-			'branch': project['branch'],
-			'pollTimeout': project['pollTimeout'],
-			'steps': steps
-		})
-
-		if projectDao.checkProjectSavedInDB(conn, project['key']) != True:
-			print ('Saving project {key}...'.format(key=project['key']))
-			projectDao.saveProject(conn, project)
-
-		agent.init()
+		initBuildAgent(project)
 
 if __name__ == "__main__":
 	print ('main')
-	conn = initDB()
 
-	initBuildAgents(conn)
+	initBuildAgents()
+
+	EventBus.subscribe(EVENTS['NEW_PROJECT_CREATED'], initBuildAgent)
 
 	host = os.environ.get('HOST') or '0.0.0.0'
 	port = os.environ.get('PORT') or 8080

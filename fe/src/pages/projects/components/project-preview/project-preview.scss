@@ -1,0 +1,38 @@
+.project-preview {
+	margin: 3px 0;
+	border-radius: 3px;
+
+	box-shadow: 2px 3px 10px -2px rgba(0,0,0,.5);
+
+	cursor: pointer;
+
+	&__name {
+		width: 150px;
+		margin: 0;
+
+		font-size: 18px;
+	}
+
+	.status-icon {
+		width: 30px;
+	}
+}
+
+.branch {
+	$branch-colour: #828282;
+
+	font-size: 14px;
+	
+	&__icon {
+		margin-right: 7px;
+	}
+
+	&__name {
+		margin: 0;
+	}
+
+	&__icon,
+	&__name {
+		color: $branch-colour;
+	}
+}

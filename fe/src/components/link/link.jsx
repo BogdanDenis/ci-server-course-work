@@ -7,6 +7,17 @@ class Link extends Component {
 		super(props);
 	}
 
+	redirect(e) {
+		e.preventDefault();
+
+		const {
+			href,
+			push,
+		} = this.props;
+
+		push(href);
+	}
+
 	render() {
 		const {
 			href,
@@ -18,6 +29,7 @@ class Link extends Component {
 			<a
 				href={href}
 				className={`link ${classes}`}
+				onClick={e => this.redirect(e)}
 			>{children}</a>
 		);
 	}

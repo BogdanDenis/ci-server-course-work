@@ -1,7 +1,10 @@
 import sys
 import threading
 import time
-from modules import cliProvider, db, dbConnection
+import datetime
+from modules import cliProvider
+from api.services.project import projectDao
+from api.services.build import buildDao
 from modules.eventBus import EVENT_BUS as EventBus
 from constants.events import EVENTS
 
@@ -50,8 +53,6 @@ class BuildAgent:
 		EventBus.publish(EVENTS['NEW_OUTPUT_LINE'], data)
 		
 	def startPolling(self):
-		self.dbConnection = dbConnection.createConnection('./ciserver.db')
-
 		while True:
 			time.sleep(self.pollTimeout)
 
@@ -73,7 +74,7 @@ class BuildAgent:
 			print ('Running steps...')
 
 			self.saveLastCommit(lastCommit)
-			self.build()
+			self.build(lastCommit)
 
 
 	def init(self):
@@ -131,33 +132,70 @@ class BuildAgent:
 	def getLastCommit(self):
 		try:
 			output = _cliProvider.run('git rev-parse HEAD', self.repoPath)
-			commit = output.replace('\n', '')
+			commit = output.replace('\n', '').encode('utf-8')
 			return commit
 		except ValueError as e:
 			print ('Cound not get last commit hash. Uncaught exception {e}'.format(e=e))
 			return e
 
+	def getLastCommitMessage(self):
+		try:
+			output = _cliProvider.run('git log -1 --pretty=%B', self.repoPath)
+			message = output.replace('\n', '').encode('utf-8')
+			return message
+		except ValueError as e:
+			print ('Could not get last commit message. Uncaught exception {e}'.format(e=e))
+			return e
+
+	def getLastCommitAuthor(self):
+		try:
+			output = _cliProvider.run('git log -1 --pretty=format:"%an (%ae)"', self.repoPath)
+			author = output.replace('\n', '').encode('utf-8')
+			return author
+		except ValueError as e:
+			print ('Could not get last commit author. Uncaught exception {e}'.format(e=e))
+			return e
+
 	def getLastSavedCommit(self):
-		sqlStatement = """
-			SELECT lastCommit
-			FROM project
-			WHERE key = '{key}'
-		""".format(key=self.key)
+		commit = projectDao.getProjectsLastCommit(self.key)
 
-		res = db.select(self.dbConnection, sqlStatement)
-
-		return res[0]['lastCommit']
+		return commit
 
 	def saveLastCommit(self, lastCommit):
-		sqlStatement = """
-			UPDATE project
-			SET lastCommit = '{commit}'
-			WHERE key = '{key}'
-		""".format(key=self.key, commit=lastCommit)
+		projectDao.saveLastCommit(self.key, lastCommit)
 
-		db.update(self.dbConnection, sqlStatement)		
+	def saveBuildResults(self, build):
+		_id = build['_id']
+		output = build['output']
+		status = build['status']
+		startTime = buildDao.getBuildById(_id).startTime
+		endTime = datetime.datetime.now()
+		duration = (endTime - startTime).total_seconds() * 1000
 
-	def build(self):
+		buildDao.setBuildStatus(buildId, status)
+		buildDao.setBuildEndTime(buildId, datetime.datetime.utcnow)
+		buildDao.setBuildDuration(buildId, duration)
+		buildDao.setBuildOutput(buildDao, output)
+
+	def build(self, lastCommit):
+		message = self.getLastCommitMessage()
+		author = self.getLastCommitAuthor()
+
+		buildId = build = {
+			commitId: lastCommit,
+			commitMessage: message,
+			commitAuthor: author
+		}
+
+		projectDao.addBuild(self.key, build)
+
+		output = '';
+
+		def appendOutput(line):
+			output += line
+
+		EventBus.subscribe(EVENTS['NEW_OUTPUT_LINE'], appendOutput)
+
 		i = 1
 		for step in self.steps:
 			self.printCurrentStep(i, step)
@@ -174,10 +212,21 @@ class BuildAgent:
 				elif command == "RUN":
 					_cliProvider.run(" ".join(arguments), self.repoPath)
 			except ValueError as e:
+				self.saveBuildResults({
+					_id: buildId,
+					output: output,
+					status: 'fail'
+				})
+				EventBus.unsubscribe(EVENTS['NEW_OUTPUT_LINE'], appendOutput)
 				self.printStepFail(step, e)
 				return e
 
 			i += 1
-
+		self.saveBuildResults({
+			_id: buildId,
+			output: output,
+			status: 'success',
+		})
+		EventBus.unsubscribe(EVENTS['NEW_OUTPUT_LINE'], appendOutput)
 		print ('Build successful!')
 		return 0

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import { LoginFormContainer } from './components/login-form/login-form-container';
 import {
-	Link,
+	LinkContainer,
 } from '../../components';
 
 import './login.scss';
@@ -20,10 +20,10 @@ class LoginPage extends Component {
 					</div>
 					<LoginFormContainer />
 					<div className="login-form-footer">
-						<Link
+						<LinkContainer
 							classes={'underline-hover'}
 							href={'#'}
-						>Forgot Password?</Link>
+						>Forgot Password?</LinkContainer>
 					</div>
 				</div>
 			</div>

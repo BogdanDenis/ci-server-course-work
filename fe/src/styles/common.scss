@@ -1,3 +1,18 @@
+#root {
+	position: relative;
+}
+
+.hide {
+	display: none;
+}
+
+.app {
+	min-height: 100vh;
+	padding-left: 47px;
+
+	background: #fbfbfb;
+}
+
 .wrapper {
 	display: flex;
 	align-items: center;

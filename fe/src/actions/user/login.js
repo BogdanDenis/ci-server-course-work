@@ -2,12 +2,13 @@ import { RSAA } from 'redux-api-middleware';
 import { push } from 'react-router-redux';
 
 import * as types from './types';
-import { HOME_ROUTE } from '../../constants/routes';
+import { PROJECTS_ROUTE } from '../../constants/routes';
+import { API_ENDPOINT } from '../../constants/endpoints';
 
 export const loginUser = (login, password) => (dispatch) => {
 	dispatch({
 		[RSAA]: {
-			endpoint: 'http://localhost:5000/login',
+			endpoint: `${API_ENDPOINT}/login`,
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -22,7 +23,7 @@ export const loginUser = (login, password) => (dispatch) => {
 					type: types.LOGIN_SUCCESS,
 					payload: (_, __, res) => {
 						res.json().then(data => {
-							dispatch(push(HOME_ROUTE));
+							dispatch(push(PROJECTS_ROUTE));
 						});
 					},
 				},

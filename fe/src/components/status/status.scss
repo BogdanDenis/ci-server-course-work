@@ -1,0 +1,15 @@
+.status-icon {
+	font-size: 18px;
+
+	&.success {
+		color: #229133;
+	}
+
+	&.fail {
+		color: #a50808;
+	}
+
+	&.pending {
+		color: #a5a5a5;
+	}
+}

@@ -3,23 +3,33 @@ import { Route, withRouter } from 'react-router';
 
 import {
 	LoginPage,
+	ProjectsPageContainer,
 } from './pages';
+import {
+	MenuContainer,
+	Header,
+	LinksNavigationContainer,
+} from './components';
 import * as routes from './constants/routes';
 
 class App extends Component {
 	render() {
 		return (
-			<div className="App">
-				<Route
-					exact
-					path={routes.HOME_ROUTE}
-					component={() => <h1>Home</h1>}
-				/>
-				<Route
-					path={routes.LOGIN_ROUTE}
-					component={LoginPage}
-				/>
-			</div>
+			<>
+				<MenuContainer />
+				<Header />
+				<div className="app">
+					<Route
+						exact
+						path={routes.PROJECTS_ROUTE}
+						component={ProjectsPageContainer}
+					/>
+					<Route
+						path={routes.LOGIN_ROUTE}
+						component={LoginPage}
+					/>
+				</div>
+			</>
 		);
 	}
 }
