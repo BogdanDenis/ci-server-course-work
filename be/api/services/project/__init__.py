@@ -28,3 +28,11 @@ def getProjectsBuilds(_id):
 	builds = projectDao.getProjectsBuilds(_id)
 
 	return jsonify(builds)
+
+@app.route('/project/<_id>/builds/<buildId>', methods=['GET'])
+def getProjectsBuild(_id, buildId):
+	builds = projectDao.getProjectsBuilds(_id)
+
+	build = next(build for build in builds if build['id'] == buildId)
+
+	return jsonify(build)

@@ -14,6 +14,7 @@ class Project(Document):
 	lastCommit = StringField(max_length=120)
 	steps = StringField()
 	builds = ListField(ReferenceField(Build))
+	status = StringField(default='pending')
 
 
 def getProjects():
@@ -62,7 +63,7 @@ def addBuild(key, build):
 	_build.save()
 
 	project = getProjectByKey(key)
-	project.update(push__build=_build)
+	project.update(push__builds=_build)
 	project.save()
 
 	return _build.id
@@ -73,3 +74,12 @@ def getProjectsBuilds(_id):
 	builds = map(lambda b : mongoToDict(Build.objects(id=b.id)[0]), project.builds)
 
 	return builds
+
+def setProjectStatus(key, status):
+	project = getProjectByKey(key)
+
+	if project == None:
+		return
+	
+	project.status = status
+	project.save()

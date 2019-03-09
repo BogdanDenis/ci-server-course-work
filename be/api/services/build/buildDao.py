@@ -9,15 +9,15 @@ class Build(Document):
 	status = StringField(default='pending')
 	startTime = DateTimeField(default=datetime.datetime.utcnow)
 	endTime = DateTimeField()
-	duration = IntField(min_value=0)
+	duration = FloatField(min_value=0)
 	output = StringField()
 
 
 def getBuilds():
-	return Project.objects()
+	return Build.objects()
 
 def getBuildById(_id):
-	res = Project.objects(id=_id)
+	res = Build.objects(id=_id)
 
 	if len(res) > 0:
 		return res[0]

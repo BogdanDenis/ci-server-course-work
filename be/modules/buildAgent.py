@@ -2,6 +2,7 @@ import sys
 import threading
 import time
 import datetime
+import traceback
 from modules import cliProvider
 from api.services.project import projectDao
 from api.services.build import buildDao
@@ -47,34 +48,45 @@ class BuildAgent:
 	def notifyAboutOutputLine(self, line):
 		data = {
 			'projectKey': self.key,
-			'line:': line
+			'line': line
 		}
 
 		EventBus.publish(EVENTS['NEW_OUTPUT_LINE'], data)
 		
 	def startPolling(self):
 		while True:
-			time.sleep(self.pollTimeout)
+			try:
+				time.sleep(self.pollTimeout)
 
-			self.fetchChanges()
-			exitCode = self.checkoutBranch()
-			if exitCode != 0:
-				continue
+				self.fetchChanges()
+				exitCode = self.checkoutBranch()
+				if exitCode != 0:
+					continue
 
-			lastCommit = self.getLastCommit()
-			lastSavedCommit = self.getLastSavedCommit()
+				lastCommit = self.getLastCommit()
+				lastSavedCommit = self.getLastSavedCommit()
 
-			print (lastCommit, lastSavedCommit)
+				print (lastCommit, lastSavedCommit)
 
-			if (lastCommit == lastSavedCommit):
-				print ('Branch {branch} is up to date'.format(branch=self.branch))
-				continue
+				if (lastCommit == lastSavedCommit):
+					msg = 'Branch {branch} is up to date'.format(branch=self.branch)
+					self.notifyAboutOutputLine(msg)
+					print (msg)
+					continue
 
-			print ('Changes in {branch}'.format(branch=self.branch))
-			print ('Running steps...')
+				changesMsg = 'Changes in {branch}'.format(branch=self.branch)
+				self.notifyAboutOutputLine(changesMsg)
+				print (changesMsg)
 
-			self.saveLastCommit(lastCommit)
-			self.build(lastCommit)
+				stepsMsg = 'Running steps...'
+				self.notifyAboutOutputLine(stepsMsg)
+				print (stepsMsg)
+
+				self.saveLastCommit(lastCommit)
+				self.build(lastCommit)
+			except Exception as e:
+				print e
+				traceback.print_exc()
 
 
 	def init(self):
@@ -86,7 +98,11 @@ class BuildAgent:
 		output = outputTemplate.format(step=step, exception=exception)
 
 		print (output)
-		print ('Build failed!')
+		self.notifyAboutOutputLine(output)
+
+		failMsg = 'Build failed!'
+		print (failMsg)
+		self.notifyAboutOutputLine(failMsg)
 
 	def printCurrentStep(self, index, step):
 		stepsCount = len(self.steps)
@@ -95,38 +111,51 @@ class BuildAgent:
 		message = messageTemplate.format(index=index, stepsCount=stepsCount, step=step)
 
 		print (message)
+		self.notifyAboutOutputLine(message)
 
 	def fetchChanges(self):
-		print ('Fetching changes...')
+		fetchMsg = 'Fetching changes...'
+		print (fetchMsg)
+		self.notifyAboutOutputLine(fetchMsg)
 
 		try:
 			_cliProvider.run('git fetch', self.repoPath)
 
 			return 0
 		except ValueError as e:
-			print ('Cound not fetch changes. Uncaught exception {e}'.format(e=e))
+			excMsg = 'Cound not fetch changes. Uncaught exception {e}'.format(e=e)
+			print (excMsg)
+			self.notifyAboutOutputLine(excMsg)
 			return e
 
 	def pullChanges(self):
-		print ('Pulling changes from branch {branch}...'.format(branch=self.branch))
+		pullMsg = 'Pulling changes from branch {branch}...'.format(branch=self.branch)
+		print (pullMsg)
+		self.notifyAboutOutputLine(pullMsg)
 
 		try:
 			_cliProvider.run('git pull', self.repoPath)
 
 			return 0
 		except ValueError as e:
-			print ('Cound not pull changes from {branch}. Uncaught exception {e}'.format(branch=self.branch, e=e))
+			excMsg = 'Cound not pull changes from {branch}. Uncaught exception {e}'.format(branch=self.branch, e=e)
+			print (excMsg)
+			self.notifyAboutOutputLine(excMsg)
 			return e
 
 	def checkoutBranch(self):
-		print ('Checking out branch {branch}...'.format(branch=self.branch))
+		checkoutMsg = 'Checking out branch {branch}...'.format(branch=self.branch)
+		print (checkoutMsg)
+		self.notifyAboutOutputLine(checkoutMsg)
 
 		try:
 			_cliProvider.run('git checkout origin/{branch}'.format(branch=self.branch), self.repoPath)
 
 			return 0
 		except ValueError as e:
-			print ('Cound not check out {branch}. Uncaught exception {e}'.format(branch=self.branch, e=e))
+			excMsg = 'Cound not check out {branch}. Uncaught exception {e}'.format(branch=self.branch, e=e)
+			print (excMsg)
+			self.notifyAboutOutputLine(excMsg)
 			return e
 
 	def getLastCommit(self):
@@ -135,7 +164,9 @@ class BuildAgent:
 			commit = output.replace('\n', '').encode('utf-8')
 			return commit
 		except ValueError as e:
-			print ('Cound not get last commit hash. Uncaught exception {e}'.format(e=e))
+			excMsg = 'Cound not get last commit hash. Uncaught exception {e}'.format(e=e)
+			print (excMsg)
+			self.notifyAboutOutputLine(excMsg)
 			return e
 
 	def getLastCommitMessage(self):
@@ -144,7 +175,9 @@ class BuildAgent:
 			message = output.replace('\n', '').encode('utf-8')
 			return message
 		except ValueError as e:
-			print ('Could not get last commit message. Uncaught exception {e}'.format(e=e))
+			excMsg = 'Could not get last commit message. Uncaught exception {e}'.format(e=e)
+			print (excMsg)
+			self.notifyAboutOutputLine(excMsg)
 			return e
 
 	def getLastCommitAuthor(self):
@@ -153,7 +186,9 @@ class BuildAgent:
 			author = output.replace('\n', '').encode('utf-8')
 			return author
 		except ValueError as e:
-			print ('Could not get last commit author. Uncaught exception {e}'.format(e=e))
+			excMsg = 'Could not get last commit author. Uncaught exception {e}'.format(e=e)
+			print (excMsg)
+			self.notifyAboutOutputLine(excMsg)
 			return e
 
 	def getLastSavedCommit(self):
@@ -172,61 +207,79 @@ class BuildAgent:
 		endTime = datetime.datetime.now()
 		duration = (endTime - startTime).total_seconds() * 1000
 
-		buildDao.setBuildStatus(buildId, status)
-		buildDao.setBuildEndTime(buildId, datetime.datetime.utcnow)
-		buildDao.setBuildDuration(buildId, duration)
-		buildDao.setBuildOutput(buildDao, output)
+		buildDao.setBuildStatus(_id, status)
+		buildDao.setBuildEndTime(_id, datetime.datetime.utcnow)
+		buildDao.setBuildDuration(_id, duration)
+		buildDao.setBuildOutput(_id, output)
 
 	def build(self, lastCommit):
-		message = self.getLastCommitMessage()
-		author = self.getLastCommitAuthor()
+		output = [];
 
-		buildId = build = {
-			commitId: lastCommit,
-			commitMessage: message,
-			commitAuthor: author
-		}
+		def appendOutput(data, output):
+			if data['projectKey'] != self.key:
+				return
 
-		projectDao.addBuild(self.key, build)
+			output.append(data['line'])
 
-		output = '';
+		outputAppender = lambda line : appendOutput(line, output)
 
-		def appendOutput(line):
-			output += line
+		try:
+			message = self.getLastCommitMessage()
+			author = self.getLastCommitAuthor()
 
-		EventBus.subscribe(EVENTS['NEW_OUTPUT_LINE'], appendOutput)
+			_build = {
+				'commitId': lastCommit,
+				'commitMessage': message,
+				'commitAuthor': author
+			}
 
-		i = 1
-		for step in self.steps:
-			self.printCurrentStep(i, step)
-			stepParts = step.split()
+			buildId = projectDao.addBuild(self.key, _build)
 
-			command = stepParts[0]
-			arguments = stepParts[1:]
+			EventBus.subscribe(EVENTS['NEW_OUTPUT_LINE'], outputAppender)
 
-			try:
-				if command == "COPY":
-					_cliProvider.copy(arguments[0], arguments[1], self.repoPath)
-				elif command == "WORKDIR":
-					_cliProvider.workdir(arguments[0], self.repoPath)
-				elif command == "RUN":
-					_cliProvider.run(" ".join(arguments), self.repoPath)
-			except ValueError as e:
-				self.saveBuildResults({
-					_id: buildId,
-					output: output,
-					status: 'fail'
-				})
-				EventBus.unsubscribe(EVENTS['NEW_OUTPUT_LINE'], appendOutput)
-				self.printStepFail(step, e)
-				return e
+			i = 1
+			for step in self.steps:
+				self.printCurrentStep(i, step)
+				stepParts = step.split()
 
-			i += 1
-		self.saveBuildResults({
-			_id: buildId,
-			output: output,
-			status: 'success',
-		})
-		EventBus.unsubscribe(EVENTS['NEW_OUTPUT_LINE'], appendOutput)
-		print ('Build successful!')
-		return 0
+				command = stepParts[0]
+				arguments = stepParts[1:]
+
+				try:
+					if command == "COPY":
+						_cliProvider.copy(arguments[0], arguments[1], self.repoPath)
+					elif command == "WORKDIR":
+						_cliProvider.workdir(arguments[0], self.repoPath)
+					elif command == "RUN":
+						_cliProvider.run(" ".join(arguments), self.repoPath)
+				except ValueError as e:
+					self.saveBuildResults({
+						'_id': buildId,
+						'output': '\n'.join(output),
+						'status': 'fail'
+					})
+					projectDao.setProjectStatus(self.key, 'fail')
+					EventBus.unsubscribe(EVENTS['NEW_OUTPUT_LINE'], appendOutput)
+					self.printStepFail(step, e)
+					return e
+
+				i += 1
+			self.saveBuildResults({
+				'_id': buildId,
+				'output': '\n'.join(output),
+				'status': 'success',
+			})
+			projectDao.setProjectStatus(self.key, 'success')
+			EventBus.unsubscribe(EVENTS['NEW_OUTPUT_LINE'], outputAppender)
+			print ('Build successful!')
+			return 0
+		except Exception as e:
+			self.saveBuildResults({
+				'_id': buildId,
+				'output': '\n'.join(output),
+				'status': 'fail',
+			})
+			projectDao.setProjectStatus(self.key, 'fail')
+			EventBus.unsubscribe(EVENTS['NEW_OUTPUT_LINE'], outputAppender)
+			print ('Build failed! Exception {e}'.format(e=e))
+			traceback.print_exc()
