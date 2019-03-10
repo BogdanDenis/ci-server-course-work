@@ -17,22 +17,3 @@
 		width: 30px;
 	}
 }
-
-.branch {
-	$branch-colour: #828282;
-
-	font-size: 14px;
-	
-	&__icon {
-		margin-right: 7px;
-	}
-
-	&__name {
-		margin: 0;
-	}
-
-	&__icon,
-	&__name {
-		color: $branch-colour;
-	}
-}

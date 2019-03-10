@@ -24,14 +24,13 @@ def initBuildAgent(project):
 	agent.init()
 
 def initBuildAgents():
+	print ('init agents')
 	projects = projectDao.getProjects()
 	projects = map(lambda proj: helpers.mongoToDict(proj), projects)
 	for project in projects:
 		initBuildAgent(project)
 
-if __name__ == "__main__":
-	print ('main')
-
+def main():
 	initBuildAgents()
 
 	EventBus.subscribe(EVENTS['NEW_PROJECT_CREATED'], initBuildAgent)
@@ -39,4 +38,7 @@ if __name__ == "__main__":
 	host = os.environ.get('HOST') or '0.0.0.0'
 	port = os.environ.get('PORT') or 8080
 
-	api.app.run(host=host, port=port)
+	api.app.run(host=host, port=port, use_reloader=False)
+
+if __name__ == "__main__":
+	main()

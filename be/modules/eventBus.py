@@ -21,6 +21,9 @@ class EventBus:
 			print ('No listeners for {event} was found!'.format(event=event))
 			return
 		
-		self.listeners.get(event).remove(listener)
+		try:
+			self.listeners.get(event).remove(listener)
+		except Exception as e:
+			print e
 
 EVENT_BUS = EventBus()

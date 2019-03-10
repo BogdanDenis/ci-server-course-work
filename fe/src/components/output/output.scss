@@ -1,0 +1,13 @@
+.output {
+	min-height: 350px;
+	max-height: 350px;
+
+	background: #000;
+	overflow-y: auto;
+
+	&__text {
+		color: #aaa;
+		font-size: 14px;
+		font-family: 'Ubuntu Mono', sans-serif;
+	}
+}

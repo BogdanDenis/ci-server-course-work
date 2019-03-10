@@ -15,6 +15,7 @@ import './index.scss';
 
 import App from './app';
 import { rootReducer } from './reducers/index';
+import { loadBuilds } from './actions/load-init-data';
 
 const history = createBrowserHistory();
 const middleware = routerMiddleware(history);
@@ -30,6 +31,8 @@ const store = createStoreWithMiddleware(
 );
 
 window.store = store;
+
+loadBuilds(store.dispatch);
 
 ReactDOM.render(
   <Provider store={store}>

@@ -2,6 +2,8 @@ from flask import jsonify, request
 from api import app
 from api.services.project import projectDao
 from modules.helpers import mongoToDict
+from modules.eventBus import EVENT_BUS as EventBus
+from constants.events import EVENTS
 
 
 @app.route('/project', methods=['GET'])
@@ -27,6 +29,8 @@ def createProject():
 def getProjectsBuilds(_id):
 	builds = projectDao.getProjectsBuilds(_id)
 
+	print(builds[len(builds) - 1])
+
 	return jsonify(builds)
 
 @app.route('/project/<_id>/builds/<buildId>', methods=['GET'])
@@ -36,3 +40,23 @@ def getProjectsBuild(_id, buildId):
 	build = next(build for build in builds if build['id'] == buildId)
 
 	return jsonify(build)
+
+@app.route('/project/<_id>/rebuild', methods=['POST'])
+def rebuildProject(_id):
+	builds = projectDao.getProjectsBuilds(_id)
+
+	build = builds[len(builds) - 1]
+
+	print (build)
+
+	if build['status'] == 'pending':
+		return 'Build is already in progress!', 412, {'Content-Type': 'text/plain'}
+
+	_build = build.copy()
+
+	_build['id'] = ''
+	_build['_id'] = ''
+
+	EventBus.publish(EVENTS['NEW_BUILD_ADDED'], _build)
+
+	return '', 200

@@ -1,6 +1,14 @@
 .status-icon {
 	font-size: 18px;
 
+	.icon__text {
+		margin-left: 10px;
+
+		font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+		font-size: 12px;
+		text-transform: uppercase;
+	}
+
 	&.success {
 		color: #229133;
 	}

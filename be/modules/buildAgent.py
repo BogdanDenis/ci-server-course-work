@@ -3,6 +3,7 @@ import threading
 import time
 import datetime
 import traceback
+import os
 from modules import cliProvider
 from api.services.project import projectDao
 from api.services.build import buildDao
@@ -33,6 +34,7 @@ class BuildAgent:
 		self.id = ++_id
 		self.key = configuration['key']
 		self.repoPath = configuration['repoPath']
+		self.cwd = configuration['repoPath']
 		self.branch = configuration['branch']
 		self.pollTimeout = configuration['pollTimeout']
 		self.steps = configuration['steps']
@@ -44,6 +46,8 @@ class BuildAgent:
 
 			if not supportedCommands[command]:
 				raise ValueError('Command ' + command + ' not supported!')
+
+		EventBus.subscribe(EVENTS['NEW_BUILD_ADDED'], self.rebuild)
 
 	def notifyAboutOutputLine(self, line):
 		data = {
@@ -58,6 +62,11 @@ class BuildAgent:
 			try:
 				time.sleep(self.pollTimeout)
 
+				build = projectDao.getProjectsLastBuild(self.key)
+
+				if build['status'] == 'pending':
+					continue
+
 				self.fetchChanges()
 				exitCode = self.checkoutBranch()
 				if exitCode != 0:
@@ -65,8 +74,6 @@ class BuildAgent:
 
 				lastCommit = self.getLastCommit()
 				lastSavedCommit = self.getLastSavedCommit()
-
-				print (lastCommit, lastSavedCommit)
 
 				if (lastCommit == lastSavedCommit):
 					msg = 'Branch {branch} is up to date'.format(branch=self.branch)
@@ -158,6 +165,21 @@ class BuildAgent:
 			self.notifyAboutOutputLine(excMsg)
 			return e
 
+	def checkoutCommit(self, commit):
+		checkoutMsg = 'Checking out commit {commit}...'.format(commit=commit)
+		print (checkoutMsg)
+		self.notifyAboutOutputLine(checkoutMsg)
+
+		try:
+			_cliProvider.run('git checkout {commit}'.format(commit=commit), self.repoPath)
+
+			return 0
+		except ValueError as e:
+			excMsg = 'Cound not check out {commit}. Uncaught exception {e}'.format(commit=commit, e=e)
+			print (excMsg)
+			self.notifyAboutOutputLine(excMsg)
+			return e
+
 	def getLastCommit(self):
 		try:
 			output = _cliProvider.run('git rev-parse HEAD', self.repoPath)
@@ -212,6 +234,18 @@ class BuildAgent:
 		buildDao.setBuildDuration(_id, duration)
 		buildDao.setBuildOutput(_id, output)
 
+	def resetAfterBuild(self):
+		self.cwd = self.repoPath
+
+	def rebuild(self, build):
+		commit = build['commitId']
+
+		code = self.checkoutCommit(commit)
+		if code != 0:
+			return
+		
+		self.build(commit)
+
 	def build(self, lastCommit):
 		output = [];
 
@@ -235,6 +269,10 @@ class BuildAgent:
 
 			buildId = projectDao.addBuild(self.key, _build)
 
+			def handleNewLine(line):
+				outputAppender(line, output)
+				buildDao.setBuildOutput(buildId, '\n'.join(output))
+
 			EventBus.subscribe(EVENTS['NEW_OUTPUT_LINE'], outputAppender)
 
 			i = 1
@@ -247,11 +285,14 @@ class BuildAgent:
 
 				try:
 					if command == "COPY":
-						_cliProvider.copy(arguments[0], arguments[1], self.repoPath)
+						_cliProvider.copy(arguments[0], arguments[1], self.cwd)
 					elif command == "WORKDIR":
-						_cliProvider.workdir(arguments[0], self.repoPath)
+						code = _cliProvider.workdir(arguments[0], self.cwd)
+						print (code)
+						if code == 0:
+							self.cwd = os.path.normpath(os.path.join(self.cwd, arguments[0]))
 					elif command == "RUN":
-						_cliProvider.run(" ".join(arguments), self.repoPath)
+						_cliProvider.run(" ".join(arguments), self.cwd)
 				except ValueError as e:
 					self.saveBuildResults({
 						'_id': buildId,
@@ -261,6 +302,7 @@ class BuildAgent:
 					projectDao.setProjectStatus(self.key, 'fail')
 					EventBus.unsubscribe(EVENTS['NEW_OUTPUT_LINE'], appendOutput)
 					self.printStepFail(step, e)
+					self.resetAfterBuild()
 					return e
 
 				i += 1
@@ -272,6 +314,7 @@ class BuildAgent:
 			projectDao.setProjectStatus(self.key, 'success')
 			EventBus.unsubscribe(EVENTS['NEW_OUTPUT_LINE'], outputAppender)
 			print ('Build successful!')
+			self.resetAfterBuild()
 			return 0
 		except Exception as e:
 			self.saveBuildResults({
@@ -283,3 +326,4 @@ class BuildAgent:
 			EventBus.unsubscribe(EVENTS['NEW_OUTPUT_LINE'], outputAppender)
 			print ('Build failed! Exception {e}'.format(e=e))
 			traceback.print_exc()
+			self.resetAfterBuild()

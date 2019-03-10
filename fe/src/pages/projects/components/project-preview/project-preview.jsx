@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 
 import {
-	Icon,
+	Branch,
 	Status,
 } from '../../../../components';
+import { previewProjectRoute } from '../../../../helpers';
 
 import './project-preview.scss';
 
@@ -16,21 +17,20 @@ class ProjectPreview extends Component {
 		const {
 			id,
 			setViewedProject,
+			push,
 		} = this.props;
 
 		setViewedProject(id);
+		push(previewProjectRoute(id));
 	}
 
 	render() {
 		const {
 			name,
 			id,
-			_key,
 			status,
 			branch,
 		} = this.props;
-
-		const _status = 'success';
 
 		return (
 			<li
@@ -38,12 +38,12 @@ class ProjectPreview extends Component {
 				className="project-preview list-group-item d-flex align-items-center"
 				onClick={() => this.handleClick()}
 			>
-				<Status status={_status} />
-				<h2 className="project-preview__name">{_key}</h2>
-				<div className="project-preview__branch branch d-flex align-items-center">
-					<Icon icon="code-fork" classes="branch__icon" />
-					<p className="branch__name">{branch}</p>				
-				</div>
+				<Status status={status} />
+				<h2 className="project-preview__name">{name}</h2>
+				<Branch
+					classes={'project-preview__branch'}
+					branch={branch}
+				/>
 			</li>
 		);
 	}

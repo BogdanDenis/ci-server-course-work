@@ -75,6 +75,14 @@ def getProjectsBuilds(_id):
 
 	return builds
 
+def getProjectsLastBuild(key):
+	project = getProjectByKey(key)
+	builds = getProjectsBuilds(project['id'])
+
+	lastBuild = builds[len(builds) - 1]
+
+	return lastBuild
+
 def setProjectStatus(key, status):
 	project = getProjectByKey(key)
 

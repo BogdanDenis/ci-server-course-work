@@ -1,0 +1,46 @@
+.active-project {
+	position: relative;
+
+	width: 100%;
+	min-height: 300px;
+	padding: 10px 20px;
+
+	box-shadow: 4px 4px 10px 1px rgba(0,0,0,.3);
+
+	&__name {
+		display: inline-block;
+
+		font-size: 23px;
+		color: #444;
+
+		cursor: pointer;
+	}
+
+	.line-wrapper {
+		display: flex;
+
+		align-items: center;
+
+		.line-item {
+			margin-right: 15px;
+		}
+	}
+
+	.status-icon {
+		font-size: 14px;
+	}
+
+	.steps {
+		margin-top: 10px;
+	}
+
+	&__buttons {
+		position: absolute;
+		top: 10px;
+		right: 20px;
+
+		.button {
+			font-size: 14px;
+		}
+	}
+}

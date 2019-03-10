@@ -8,9 +8,9 @@ class TerminalCLI:
 		commandTemplate = 'cp -r {what} {where}'
 		command = commandTemplate.format(what=what, where=where)
 		try:
-			retval = self.run(command, cwd)
+			self.run(command, cwd)
 
-			return retval
+			return 0
 		except ValueError as e:
 			raise e
 
@@ -18,9 +18,9 @@ class TerminalCLI:
 		commandTemplate = 'cd {directory}'
 		command = commandTemplate.format(directory=directory)
 		try:
-			retval = self.run(command, cwd)
+			self.run(command, cwd)
 
-			return retval
+			return 0
 		except ValueError as e:
 			raise e
 

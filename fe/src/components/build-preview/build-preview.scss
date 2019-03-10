@@ -1,0 +1,25 @@
+.build-preview {
+	cursor: pointer;
+
+	$margin-right: 20px;
+
+	&__hash {
+		margin: 0;
+		margin-right: $margin-right;
+
+		font-size: 15px;
+	}
+
+	.status-icon {
+		width: 90px;
+		margin-right: $margin-right;
+	}
+
+	.branch {
+		margin-right: $margin-right;
+	}
+
+	.time-passed {
+		margin-right: $margin-right;
+	}
+}

@@ -10,7 +10,7 @@ const MenuItem = (props) => {
 
 	const active = location.pathname === route;
 
-	const classes = classnames('list-group-item menu__item', {
+	const classes = classnames('menu__item', {
 		active,
 	});
 

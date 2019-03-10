@@ -1,0 +1,19 @@
+.build {
+	padding: 30px 50px;
+
+	&__message {
+		font-size: 16px;
+	}
+
+	&__hash {
+		font-size: 15px;
+	}
+
+	&__author {
+		font-size: 15px;
+	}
+
+	.output {
+		margin-top: 20px;
+	}
+}
