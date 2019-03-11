@@ -8,10 +8,22 @@
 		padding: 0;
 	}
 
-	.step {
+	.step,
+	.step input {
+		width: auto;
+		padding: 0;
+
 		font-size: 13px;
 		font-family: monospace;
 
 		list-style: none;
+	}
+
+	.remove-step {
+		color: #990000;
+	}
+
+	.add-step {
+		color: #009900;
 	}
 }

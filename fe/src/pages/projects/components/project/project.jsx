@@ -6,12 +6,18 @@ import {
 	Steps,
 	BuildPreviewList,
 	Button,
+	Icon,
 } from '../../../../components';
 import './project.scss';
 
 class Project extends Component {
 	constructor(props) {
 		super(props);
+
+		this.state = {
+			inEditMode: false,
+			settingsMenuOpen: false,
+		};
 	}
 
 	trySetViewedProject() {
@@ -57,10 +63,27 @@ class Project extends Component {
 		rebuildProject(project.id);
 	}
 
+	handleMenuClicked() {
+		this.setState({
+			settingsMenuOpen: !this.state.settingsMenuOpen,
+		});
+	}
+
+	handleSettingsClicked() {
+		this.setState({
+			settingsMenuOpen: false,
+			inEditMode: !this.state.inEditMode,
+		});
+	}
+
 	render() {
 		const {
 			project,
 		} = this.props;
+		const {
+			settingsMenuOpen,
+			inEditMode,
+		} = this.state;
 
 		if (!project) {
 			return null;
@@ -84,7 +107,7 @@ class Project extends Component {
 						classes={'line-item'}
 					></Status>
 				</div>
-				<Steps steps={steps} />
+				<Steps steps={steps} editMode={inEditMode}/>
 				{this.renderBuildPreviews()}
 				<div className="active-project__buttons">
 					<Button
@@ -93,6 +116,24 @@ class Project extends Component {
 					>
 						Rebuild
 					</Button>
+					<Button
+						onClick={() => this.handleMenuClicked()}
+					>
+						<Icon icon="ellipsis-v" version="5" />
+					</Button>
+					{
+						settingsMenuOpen && (
+							<div className="settings-buttons btn-group-vertical" role="group">
+								<Button
+									classes="btn btn-secondary btn-light settings-button"
+									onClick={() => this.handleSettingsClicked()}
+								>Edit</Button>
+								<Button
+									classes="btn btn-danger settings-button"
+								>Delete</Button>
+							</div>
+						)
+					}
 				</div>
 			</section>
 		);

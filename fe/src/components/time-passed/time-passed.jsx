@@ -28,10 +28,19 @@ class TimePassed extends Component {
 				const secondsPassed = Math.floor(diff / 1000);
 
 				timePassed = `${secondsPassed}s`;
-			} else {
+			} else if (diff < 60 * 60 * 1000) {
 				const minutesPassed = Math.floor(diff / 60000);
 
 				timePassed = `${minutesPassed}m`;
+			} else if (diff < 24 * 60 * 60 * 1000){
+				const hoursPassed = Math.floor(diff / (60 * 60 * 1000));
+				const minutesPassed = Math.floor(((diff - hoursPassed) * 60 * 60 * 1000) / 60000);
+
+				timePassed = `${hoursPassed}h ${minutesPassed}m`;
+			} else {
+				const daysPassed = Math.floor(diff / (24 * 60 * 60 * 1000));
+
+				timePassed = `${daysPassed}d`;
 			}
 
 			this.setState({

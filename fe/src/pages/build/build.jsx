@@ -68,7 +68,7 @@ class BuildPage extends Component {
 				<h3 className="build__hash">Hash: {commitId}</h3>
 				<CommitAuthor author={commitAuthor} classes={'build__author'} />
 				<Status status={status} showText />
-				<TimePassed startTime={endTime ? endTime.$date : 0} />
+				<TimePassed startTime={startTime ? startTime.$date : 0} />
 				<Output text={output} />
 			</section>
 		);

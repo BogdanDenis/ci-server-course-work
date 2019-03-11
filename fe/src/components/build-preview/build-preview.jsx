@@ -30,7 +30,7 @@ class BuildPreview extends Component {
 			commitId,
 			commitMessage,
 			commitAuthor,
-			endTime,
+			startTime,
 			branch,
 			status,
 		} = this.props;
@@ -44,7 +44,7 @@ class BuildPreview extends Component {
 				<h4 className="build-preview__hash">{commitId}</h4>
 				<Status status={status} showText />
 				<Branch branch={branch} />
-				<TimePassed startTime={endTime ? endTime.$date : null} />
+				<TimePassed startTime={startTime ? startTime.$date : null} />
 			</div>
 		);
 	}

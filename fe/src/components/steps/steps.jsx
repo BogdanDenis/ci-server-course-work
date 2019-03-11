@@ -1,29 +1,58 @@
-import React from 'react';
+import React, { Component } from 'react';
 import classnames from 'classnames';
 
+import {
+	Button,
+	Icon,
+} from '../';
 import './steps.scss';
 
-const Steps = (props) => {
-	const {
-		steps,
-		classes,
-	} = props;
+class Steps extends Component {
+	constructor(props) {
+		super(props);
+	}
 
-
-	return (
-		<section className={classnames('steps', classes)}>
-			<h3 className="steps__heading">Steps:</h3>
-			<ul className="steps__list">
+	render() {
+		const {
+			steps,
+			classes,
+			editMode,
+		} = this.props;
+	
+	
+		return (
+			<section className={classnames('steps', classes)}>
+				<h3 className="steps__heading">Steps:</h3>
+				<ul className="steps__list">
+					{
+						steps.map((step) => {
+							return (
+								<li className='step'>
+									{
+										editMode ? (
+											<div>
+												<input type="text" value={step} onInput={e => console.log(e.target.value)}/>
+												<Button classes="remove-step">
+													<Icon icon="times" version="5" />
+												</Button>
+											</div>
+										) : (step)
+									}
+								</li>
+							);
+						})
+					}
+				</ul>
 				{
-					steps.map((step) => {
-						return (
-							<li className='step'>{step}</li>
-						);
-					})
+					editMode && (
+						<Button classes="add-step" onClick={() => {}}>
+							<Icon icon="plus" version="5" />
+						</Button>
+					)
 				}
-			</ul>
-		</section>
-	);
-};
+			</section>
+		);
+	}
+}
 
 export { Steps };
