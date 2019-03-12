@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import classnames from 'classnames';
+import uuid from 'uuid/v1';
 
 import {
 	Button,
@@ -7,18 +8,90 @@ import {
 } from '../';
 import './steps.scss';
 
+const stepsToObjectArray = steps => {
+	return steps.map((step) => ({
+		id: uuid(),
+		value: step,
+	}));
+};
+
 class Steps extends Component {
 	constructor(props) {
 		super(props);
+
+		this.state = {
+			initialSteps: stepsToObjectArray([...props.steps]),
+			steps: stepsToObjectArray(props.steps),
+		};
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		if (!nextProps.editMode) {
+			return {
+				initialSteps: stepsToObjectArray([...nextProps.steps]),
+				steps: stepsToObjectArray(nextProps.steps),
+			}
+		}
+	}
+
+	handleStepEdit(e, id) {
+		const { value } = e.target;
+
+		this.setState({
+			steps: this.state.steps.map(step => ({
+				id: step.id,
+				value: step.id === id ? value : step.value,
+			})),
+		});
+	}
+
+	handleRemoveClick(id) {
+		this.setState({
+			steps: this.state.steps.filter(step => step.id !== id),
+		});
+	}
+
+	handleAddClick(id) {
+		this.setState({
+			steps: this.state.steps.reduce((acc, cur) => {
+				acc.push(cur);
+
+				if (cur.id === id) {
+					acc.push({
+						id: uuid(),
+						value: '',
+					});
+				}
+
+				return acc;
+			}, []),
+		});
+	}
+
+	handleSave() {
+		const {
+			onStepsSave,
+		} = this.props;
+
+		const steps = this.state.steps
+			.filter(step => step.value.length)
+			.map(step => step.value);
+
+		onStepsSave(steps);
+	}
+
+	handleCancel() {
+		this.setState({
+			steps: [...this.state.initialSteps],
+		}, () => console.log(this.state.steps));
 	}
 
 	render() {
 		const {
-			steps,
 			classes,
 			editMode,
 		} = this.props;
-	
+		const { steps } = this.state;
 	
 		return (
 			<section className={classnames('steps', classes)}>
@@ -31,12 +104,15 @@ class Steps extends Component {
 									{
 										editMode ? (
 											<div>
-												<input type="text" value={step} onInput={e => console.log(e.target.value)}/>
-												<Button classes="remove-step">
+												<input type="text" value={step.value} onInput={e => this.handleStepEdit(e, step.id)}/>
+												<Button classes="remove-step" onClick={() => this.handleRemoveClick(step.id)}>
 													<Icon icon="times" version="5" />
 												</Button>
+												<Button classes="add-step" onClick={() => this.handleAddClick(step.id)}>
+													<Icon icon="plus" version="5" />
+												</Button>
 											</div>
-										) : (step)
+										) : (step.value)
 									}
 								</li>
 							);
@@ -44,11 +120,16 @@ class Steps extends Component {
 					}
 				</ul>
 				{
-					editMode && (
-						<Button classes="add-step" onClick={() => {}}>
-							<Icon icon="plus" version="5" />
-						</Button>
-					)
+					editMode ? (
+						<>
+							<Button classes="save btn-primary" onClick={() => this.handleSave()}>
+								Save steps
+							</Button>
+							<Button classes="cancel btn-danger" onClick={() => this.handleCancel()}>
+								Cancel
+							</Button>
+						</>
+					) : null
 				}
 			</section>
 		);

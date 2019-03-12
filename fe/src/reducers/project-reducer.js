@@ -33,6 +33,20 @@ export const projectReducer = (state = initialState, action) => {
 					};
 				}),
 			};
+		case types.SAVE_PROJECT_STEPS:
+			return {
+				...state,
+				projects: state.projects.map((project) => {
+					if (project.id === action.payload.id) {
+						return {
+							...project,
+							steps: action.payload.steps,
+						};
+					}
+
+					return project;
+				}),
+			};
 		default:
 			return state;
 	}

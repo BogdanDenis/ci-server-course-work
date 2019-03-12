@@ -5,3 +5,5 @@ export * from './set-viewed-project';
 export * from './get-projects-builds';
 export * from './save-projects-builds';
 export * from './rebuild-project';
+export * from './update-project-steps';
+export * from './save-project-steps';

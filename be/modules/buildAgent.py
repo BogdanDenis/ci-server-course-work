@@ -48,6 +48,21 @@ class BuildAgent:
 				raise ValueError('Command ' + command + ' not supported!')
 
 		EventBus.subscribe(EVENTS['NEW_BUILD_ADDED'], self.rebuild)
+		EventBus.subscribe(EVENTS['PROJECT_UPDATED'], self.reconfigureAfterProjectChange)
+
+	def reconfigureAfterProjectChange(self, project):
+		if project['key'] != self.key:
+			return
+
+		self.repoPath = project['repoPath']
+		self.branch = project['branch']
+
+		stepsString = project['steps']
+		if stepsString != None:
+			steps = stepsString.split(';;')
+		else:
+			steps = []
+		self.steps = steps
 
 	def notifyAboutOutputLine(self, line):
 		data = {

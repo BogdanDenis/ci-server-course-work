@@ -6,6 +6,7 @@ import {
 	getProjectsBuilds,
 	setViewedProject,
 	rebuildProject,
+	updateProjectSteps,
 } from '../../../../actions';
 import { selectActiveProject } from '../../../../selectors';
 
@@ -19,6 +20,7 @@ const ProjectContainer = connect(
 		getProjectsBuilds,
 		setViewedProject,
 		rebuildProject,
+		updateProjectSteps,
 	},
 )(Project);
 

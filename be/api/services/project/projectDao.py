@@ -91,3 +91,14 @@ def setProjectStatus(key, status):
 	
 	project.status = status
 	project.save()
+
+def setProjectSteps(_id, steps):
+	project = getProjectById(_id)
+
+	if project == None:
+		return 404
+
+	project.steps = steps
+	project.save()
+
+	return project

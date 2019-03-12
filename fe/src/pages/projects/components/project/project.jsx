@@ -76,6 +76,21 @@ class Project extends Component {
 		});
 	}
 
+	handleStepsSave(steps) {
+		const {
+			project,
+			updateProjectSteps,
+		} = this.props;
+
+		this.setState({
+			inEditMode: false,
+		});
+
+		const stepsString = steps.join(';;');
+
+		updateProjectSteps(project.id, stepsString);
+	}
+
 	render() {
 		const {
 			project,
@@ -107,7 +122,11 @@ class Project extends Component {
 						classes={'line-item'}
 					></Status>
 				</div>
-				<Steps steps={steps} editMode={inEditMode}/>
+				<Steps
+					steps={steps}
+					editMode={inEditMode}
+					onStepsSave={steps => this.handleStepsSave(steps)}
+				/>
 				{this.renderBuildPreviews()}
 				<div className="active-project__buttons">
 					<Button

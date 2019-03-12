@@ -60,3 +60,16 @@ def rebuildProject(_id):
 	EventBus.publish(EVENTS['NEW_BUILD_ADDED'], _build)
 
 	return '', 200
+
+@app.route('/project/<_id>/updateSteps', methods=['POST'])
+def updateSteps(_id):
+	body = request.get_json()
+
+	res = projectDao.setProjectSteps(_id, body['steps'])
+
+	if res == 404:
+		return '', 404
+
+	EventBus.publish(EVENTS['PROJECT_UPDATED'], mongoToDict(res))
+
+	return jsonify(mongoToDict(res))
