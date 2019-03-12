@@ -19,9 +19,17 @@ class Steps extends Component {
 	constructor(props) {
 		super(props);
 
+		let steps = stepsToObjectArray(props.steps);
+		if (!steps.length) {
+			steps = [{
+				id: uuid(),
+				value: '',
+			}];
+		}
+
 		this.state = {
 			initialSteps: stepsToObjectArray([...props.steps]),
-			steps: stepsToObjectArray(props.steps),
+			steps,
 		};
 	}
 
@@ -46,8 +54,16 @@ class Steps extends Component {
 	}
 
 	handleRemoveClick(id) {
+		let newSteps = this.state.steps.filter(step => step.id !== id);
+		if (!newSteps.length) {
+			newSteps = [{
+				id: uuid(),
+				value: '',
+			}];
+		}
+
 		this.setState({
-			steps: this.state.steps.filter(step => step.id !== id),
+			steps: newSteps,
 		});
 	}
 

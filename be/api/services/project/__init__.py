@@ -57,7 +57,12 @@ def rebuildProject(_id):
 	_build['id'] = ''
 	_build['_id'] = ''
 
-	EventBus.publish(EVENTS['NEW_BUILD_ADDED'], _build)
+	project = projectDao.getProjectById(_id)
+
+	EventBus.publish(EVENTS['NEW_BUILD_ADDED'], {
+		'projectId': project.key,
+		'build': _build
+	})
 
 	return '', 200
 

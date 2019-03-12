@@ -5,6 +5,7 @@ from constants.events import EVENTS
 
 import api
 from api.services.project import projectDao
+from api.notifier import startServer as startWSserver
 
 def initBuildAgent(project):
 	steps = project['steps']
@@ -37,6 +38,8 @@ def main():
 
 	host = os.environ.get('HOST') or '0.0.0.0'
 	port = os.environ.get('PORT') or 8080
+
+	startWSserver()
 
 	api.app.run(host=host, port=port, use_reloader=False)
 

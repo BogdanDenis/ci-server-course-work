@@ -1,6 +1,9 @@
 import { RSAA } from 'redux-api-middleware';
 
-import { getProjectsBuilds } from './';
+import {
+	getProjectsBuilds,
+	getBuilds,
+} from '../';
 import * as types from './types';
 import { API_ENDPOINT } from '../../constants/endpoints';
 
@@ -16,8 +19,9 @@ export const rebuildProject = (id) => (dispatch) => {
 				types.REBUILD_PROJECT_REQUEST,
 				{
 					type: types.REBUILD_PROJECT_SUCCESS,
-					payload: (_, __, res) => {
+					payload: () => {
 						dispatch(getProjectsBuilds(id));
+						dispatch(getBuilds());
 					},
 				},
 				types.REBUILD_PROJECT_FAIL,

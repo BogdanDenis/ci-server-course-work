@@ -38,6 +38,7 @@ class BuildAgent:
 		self.branch = configuration['branch']
 		self.pollTimeout = configuration['pollTimeout']
 		self.steps = configuration['steps']
+		self.output = []
 
 		_cliProvider.setOutputListener(self.notifyAboutOutputLine)
 
@@ -47,7 +48,13 @@ class BuildAgent:
 			if not supportedCommands[command]:
 				raise ValueError('Command ' + command + ' not supported!')
 
-		EventBus.subscribe(EVENTS['NEW_BUILD_ADDED'], self.rebuild)
+		def handleNewBuildAdded(data):
+			if data['projectId'] != self.key:
+				return
+
+			self.rebuild(data['build'])
+
+		EventBus.subscribe(EVENTS['NEW_BUILD_ADDED'], handleNewBuildAdded)
 		EventBus.subscribe(EVENTS['PROJECT_UPDATED'], self.reconfigureAfterProjectChange)
 
 	def reconfigureAfterProjectChange(self, project):
@@ -105,7 +112,15 @@ class BuildAgent:
 				print (stepsMsg)
 
 				self.saveLastCommit(lastCommit)
-				self.build(lastCommit)
+
+
+				buildId, handleNewLine = self.prebuild(lastCommit)
+				res = self.build(lastCommit)
+
+				if res == 0:
+					self.postbuild(buildId, 'success', handleNewLine)
+				else:
+					self.postbuild(buildId, 'fail', handleNewLine)
 			except Exception as e:
 				print e
 				traceback.print_exc()
@@ -251,6 +266,7 @@ class BuildAgent:
 
 	def resetAfterBuild(self):
 		self.cwd = self.repoPath
+		self.output = []
 
 	def rebuild(self, build):
 		commit = build['commitId']
@@ -259,37 +275,63 @@ class BuildAgent:
 		if code != 0:
 			return
 		
-		self.build(commit)
+		buildId, handleNewLine = self.prebuild(commit)
 
-	def build(self, lastCommit):
-		output = [];
+		def runBuild():
+			res = self.build(commit)
 
+			if res == 0:
+				self.postbuild(buildId, 'success', handleNewLine)
+			else:
+				self.postbuild(buildId, 'fail', handleNewLine)
+
+		thread = threading.Thread(target=runBuild, args=())
+		thread.start()
+
+	def prebuild(self, commit):
 		def appendOutput(data, output):
 			if data['projectKey'] != self.key:
 				return
 
-			output.append(data['line'])
+			self.output.append(data['line'])
+			buildDao.setBuildOutput(buildId, '\n'.join(self.output))
 
-		outputAppender = lambda line : appendOutput(line, output)
+		outputAppender = lambda line : appendOutput(line, self.output)
 
+		def handleNewLine(data):
+			outputAppender(data)
+
+		message = self.getLastCommitMessage()
+		author = self.getLastCommitAuthor()
+
+		_build = {
+			'commitId': commit,
+			'commitMessage': message,
+			'commitAuthor': author
+		}
+
+		buildId = projectDao.addBuild(self.key, _build)
+
+		EventBus.subscribe(EVENTS['NEW_OUTPUT_LINE'], handleNewLine)
+
+		return buildId, handleNewLine
+
+	def postbuild(self, buildId, status, handleNewLine):
+		self.saveBuildResults({
+			'_id': buildId,
+			'output': '\n'.join(self.output),
+			'status': status
+		})
+		projectDao.setProjectStatus(self.key, status)
+
+		self.resetAfterBuild()
+
+		EventBus.unsubscribe(EVENTS['NEW_OUTPUT_LINE'], handleNewLine)
+		
+		
+
+	def build(self, lastCommit):
 		try:
-			message = self.getLastCommitMessage()
-			author = self.getLastCommitAuthor()
-
-			_build = {
-				'commitId': lastCommit,
-				'commitMessage': message,
-				'commitAuthor': author
-			}
-
-			buildId = projectDao.addBuild(self.key, _build)
-
-			def handleNewLine(line):
-				outputAppender(line, output)
-				buildDao.setBuildOutput(buildId, '\n'.join(output))
-
-			EventBus.subscribe(EVENTS['NEW_OUTPUT_LINE'], outputAppender)
-
 			i = 1
 			for step in self.steps:
 				self.printCurrentStep(i, step)
@@ -309,36 +351,13 @@ class BuildAgent:
 					elif command == "RUN":
 						_cliProvider.run(" ".join(arguments), self.cwd)
 				except ValueError as e:
-					self.saveBuildResults({
-						'_id': buildId,
-						'output': '\n'.join(output),
-						'status': 'fail'
-					})
-					projectDao.setProjectStatus(self.key, 'fail')
-					EventBus.unsubscribe(EVENTS['NEW_OUTPUT_LINE'], appendOutput)
 					self.printStepFail(step, e)
-					self.resetAfterBuild()
 					return e
 
 				i += 1
-			self.saveBuildResults({
-				'_id': buildId,
-				'output': '\n'.join(output),
-				'status': 'success',
-			})
-			projectDao.setProjectStatus(self.key, 'success')
-			EventBus.unsubscribe(EVENTS['NEW_OUTPUT_LINE'], outputAppender)
 			print ('Build successful!')
-			self.resetAfterBuild()
 			return 0
 		except Exception as e:
-			self.saveBuildResults({
-				'_id': buildId,
-				'output': '\n'.join(output),
-				'status': 'fail',
-			})
-			projectDao.setProjectStatus(self.key, 'fail')
-			EventBus.unsubscribe(EVENTS['NEW_OUTPUT_LINE'], outputAppender)
 			print ('Build failed! Exception {e}'.format(e=e))
 			traceback.print_exc()
-			self.resetAfterBuild()
+			return e

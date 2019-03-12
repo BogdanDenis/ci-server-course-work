@@ -34,7 +34,7 @@ class TimePassed extends Component {
 				timePassed = `${minutesPassed}m`;
 			} else if (diff < 24 * 60 * 60 * 1000){
 				const hoursPassed = Math.floor(diff / (60 * 60 * 1000));
-				const minutesPassed = Math.floor(((diff - hoursPassed) * 60 * 60 * 1000) / 60000);
+				const minutesPassed = Math.floor((diff - hoursPassed * 60 * 60 * 1000) / 60000);
 
 				timePassed = `${hoursPassed}h ${minutesPassed}m`;
 			} else {
@@ -56,11 +56,12 @@ class TimePassed extends Component {
 	render() {
 		const {
 			classes,
+			startTime,
 		} = this.props;
 		const { timePassed } = this.state;
 
 		return (
-			<section className={classnames('time-passed', classes)}>
+			<section className={classnames('time-passed', classes)} title={new Date(startTime).toLocaleString()}>
 				<Icon version={5} icon="stopwatch" text={timePassed} classes='time-passed__icon'></Icon>
 			</section>
 		);
