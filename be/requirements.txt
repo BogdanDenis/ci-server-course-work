@@ -3,3 +3,4 @@ git+https://github.com/Pithikos/python-websocket-server#python-websocket-server
 comtypes
 mongoengine==0.10.7
 SimpleWebSocketServer
+requests

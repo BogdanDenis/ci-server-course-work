@@ -4,7 +4,8 @@ import time
 import datetime
 import traceback
 import os
-from modules import cliProvider
+import json
+from modules import cliProvider, helpers
 from api.services.project import projectDao
 from api.services.build import buildDao
 from modules.eventBus import EVENT_BUS as EventBus
@@ -39,6 +40,7 @@ class BuildAgent:
 		self.pollTimeout = configuration['pollTimeout']
 		self.steps = configuration['steps']
 		self.output = []
+		self.buildId = None
 
 		_cliProvider.setOutputListener(self.notifyAboutOutputLine)
 
@@ -78,6 +80,17 @@ class BuildAgent:
 		}
 
 		EventBus.publish(EVENTS['NEW_OUTPUT_LINE'], data)
+
+		if self.buildId == None:
+			return
+
+		EventBus.publish(EVENTS['WS_NOTIFY'], json.dumps({
+			'type': 'NEW_OUTPUT_LINE',
+			'payload': {
+				'buildId': self.buildId,
+				'line': line
+			}
+		}))
 		
 	def startPolling(self):
 		while True:
@@ -267,6 +280,7 @@ class BuildAgent:
 	def resetAfterBuild(self):
 		self.cwd = self.repoPath
 		self.output = []
+		self.buildId = None
 
 	def rebuild(self, build):
 		commit = build['commitId']
@@ -311,8 +325,19 @@ class BuildAgent:
 		}
 
 		buildId = projectDao.addBuild(self.key, _build)
+		buildDict = helpers.mongoToDict(buildDao.getBuildById(buildId))
+		self.buildId = buildDict['id']
+		
 
 		EventBus.subscribe(EVENTS['NEW_OUTPUT_LINE'], handleNewLine)
+
+		EventBus.publish(EVENTS['WS_NOTIFY'], json.dumps({
+			'type': 'NEW_BUILD_STARTED',
+			'payload': {
+				'projectKey': self.key,
+				'build': buildDict
+			}
+		}))
 
 		return buildId, handleNewLine
 
@@ -324,6 +349,15 @@ class BuildAgent:
 		})
 		projectDao.setProjectStatus(self.key, status)
 
+
+		EventBus.publish(EVENTS['WS_NOTIFY'], json.dumps({
+			'type': 'BUILD_STATUS_CHANGE',
+			'payload': {
+				'projectKey': self.key,
+				'buildId': self.buildId,
+				'status': status
+			}
+		}))
 		self.resetAfterBuild()
 
 		EventBus.unsubscribe(EVENTS['NEW_OUTPUT_LINE'], handleNewLine)

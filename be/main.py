@@ -1,4 +1,4 @@
-import os
+import os, time, threading, requests
 from modules import buildAgent, dbConnection, helpers
 from modules.eventBus import EVENT_BUS as EventBus
 from constants.events import EVENTS
@@ -6,6 +6,9 @@ from constants.events import EVENTS
 import api
 from api.services.project import projectDao
 from api.notifier import startServer as startWSserver
+
+host = os.environ.get('HOST') or '0.0.0.0'
+port = os.environ.get('PORT') or 8080
 
 def initBuildAgent(project):
 	steps = project['steps']
@@ -31,17 +34,26 @@ def initBuildAgents():
 	for project in projects:
 		initBuildAgent(project)
 
+def startFlask():
+	api.app.run(host=host, port=port, use_reloader=False)
+
 def main():
 	initBuildAgents()
 
 	EventBus.subscribe(EVENTS['NEW_PROJECT_CREATED'], initBuildAgent)
 
-	host = os.environ.get('HOST') or '0.0.0.0'
-	port = os.environ.get('PORT') or 8080
+	wsServer = startWSserver()
 
-	startWSserver()
+	thread = threading.Thread(target=startFlask)
+	thread.start()
 
-	api.app.run(host=host, port=port, use_reloader=False)
+	try:
+		while True:
+			time.sleep(1)
+	except KeyboardInterrupt as e:
+		print (e)
+		requests.post('http://{host}:{port}/__kill__'.format(host=host, port=port))
+		wsServer.close()
 
 if __name__ == "__main__":
 	main()

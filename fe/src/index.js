@@ -16,6 +16,7 @@ import './index.scss';
 import App from './app';
 import { rootReducer } from './reducers/index';
 import { loadBuilds } from './actions/load-init-data';
+import { WsClient } from './services/ws-client';
 
 const history = createBrowserHistory();
 const middleware = routerMiddleware(history);
@@ -33,6 +34,7 @@ const store = createStoreWithMiddleware(
 window.store = store;
 
 loadBuilds(store.dispatch);
+store.dispatch(WsClient());
 
 ReactDOM.render(
   <Provider store={store}>
