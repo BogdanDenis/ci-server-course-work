@@ -53,7 +53,8 @@ class Steps extends Component {
 		});
 	}
 
-	handleRemoveClick(id) {
+	handleRemoveClick(e, id) {
+		e.preventDefault();
 		let newSteps = this.state.steps.filter(step => step.id !== id);
 		if (!newSteps.length) {
 			newSteps = [{
@@ -67,7 +68,8 @@ class Steps extends Component {
 		});
 	}
 
-	handleAddClick(id) {
+	handleAddClick(e, id) {
+		e.preventDefault();
 		this.setState({
 			steps: this.state.steps.reduce((acc, cur) => {
 				acc.push(cur);
@@ -84,7 +86,8 @@ class Steps extends Component {
 		});
 	}
 
-	handleSave() {
+	handleSave(e) {
+		e.preventDefault();
 		const {
 			onStepsSave,
 		} = this.props;
@@ -96,10 +99,11 @@ class Steps extends Component {
 		onStepsSave(steps);
 	}
 
-	handleCancel() {
+	handleCancel(e) {
+		e.preventDefault();
 		this.setState({
 			steps: [...this.state.initialSteps],
-		}, () => console.log(this.state.steps));
+		});
 	}
 
 	render() {
@@ -121,10 +125,14 @@ class Steps extends Component {
 										editMode ? (
 											<div>
 												<input type="text" value={step.value} onInput={e => this.handleStepEdit(e, step.id)}/>
-												<Button classes="remove-step" onClick={() => this.handleRemoveClick(step.id)}>
+												<Button
+													classes="remove-step"
+													onClick={(e) => this.handleRemoveClick(e, step.id)}
+													disabled={steps.length === 0}
+												>
 													<Icon icon="times" version="5" />
 												</Button>
-												<Button classes="add-step" onClick={() => this.handleAddClick(step.id)}>
+												<Button classes="add-step" onClick={(e) => this.handleAddClick(e, step.id)}>
 													<Icon icon="plus" version="5" />
 												</Button>
 											</div>
@@ -138,10 +146,10 @@ class Steps extends Component {
 				{
 					editMode ? (
 						<>
-							<Button classes="save btn-primary" onClick={() => this.handleSave()}>
+							<Button classes="save btn-primary" onClick={(e) => this.handleSave(e)}>
 								Save steps
 							</Button>
-							<Button classes="cancel btn-danger" onClick={() => this.handleCancel()}>
+							<Button classes="cancel btn-danger" onClick={(e) => this.handleCancel(e)}>
 								Cancel
 							</Button>
 						</>

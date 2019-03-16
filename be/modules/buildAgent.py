@@ -99,8 +99,9 @@ class BuildAgent:
 
 				build = projectDao.getProjectsLastBuild(self.key)
 
-				if build['status'] == 'pending':
-					continue
+				if build != None:
+					if build['status'] == 'pending':
+						continue
 
 				self.fetchChanges()
 				exitCode = self.checkoutBranch()
@@ -109,6 +110,8 @@ class BuildAgent:
 
 				lastCommit = self.getLastCommit()
 				lastSavedCommit = self.getLastSavedCommit()
+
+				print (lastCommit, lastSavedCommit)
 
 				if (lastCommit == lastSavedCommit):
 					msg = 'Branch {branch} is up to date'.format(branch=self.branch)
@@ -135,7 +138,7 @@ class BuildAgent:
 				else:
 					self.postbuild(buildId, 'fail', handleNewLine)
 			except Exception as e:
-				print e
+				print (e)
 				traceback.print_exc()
 
 
@@ -226,7 +229,7 @@ class BuildAgent:
 	def getLastCommit(self):
 		try:
 			output = _cliProvider.run('git rev-parse HEAD', self.repoPath)
-			commit = output.replace('\n', '').encode('utf-8')
+			commit = output.replace('\n', '')
 			return commit
 		except ValueError as e:
 			excMsg = 'Cound not get last commit hash. Uncaught exception {e}'.format(e=e)

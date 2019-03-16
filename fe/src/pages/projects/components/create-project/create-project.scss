@@ -1,0 +1,24 @@
+.create-project {
+	&__title {
+
+	}
+
+	.form {
+		&-group {
+			display: flex;
+
+			label {
+				width: 250px;
+			}
+
+			input {
+				width: 250px;
+				margin: 0;
+			}
+		}
+
+		&__submit {
+			margin-top: 30px;
+		}
+	}
+}

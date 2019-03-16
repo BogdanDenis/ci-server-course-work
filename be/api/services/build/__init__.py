@@ -10,7 +10,7 @@ from constants.events import EVENTS
 @app.route('/build', methods=['GET'])
 def getBuilds():
 	builds = buildDao.getBuilds()
-	return jsonify(map(lambda build: mongoToDict(build), builds))
+	return jsonify(list(map(lambda build: mongoToDict(build), builds)))
 
 @app.route('/build/<_id>', methods=['GET'])
 def getBuildById(_id):

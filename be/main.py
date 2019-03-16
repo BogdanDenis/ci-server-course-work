@@ -30,7 +30,7 @@ def initBuildAgent(project):
 def initBuildAgents():
 	print ('init agents')
 	projects = projectDao.getProjects()
-	projects = map(lambda proj: helpers.mongoToDict(proj), projects)
+	projects = list(map(lambda proj: helpers.mongoToDict(proj), projects))
 	for project in projects:
 		initBuildAgent(project)
 

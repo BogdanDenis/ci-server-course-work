@@ -4,10 +4,16 @@ import { Route } from 'react-router-dom';
 import {
 	ProjectPreviewListContainer,
 	ProjectContainer,
+	CreateProjectContainer,
 } from './components';
-import { PREVIEW_PROJECT_ROUTE } from '../../constants/routes';
+import {
+	PREVIEW_PROJECT_ROUTE,
+	CREATE_PROJECT_ROUTE,
+} from '../../constants/routes';
 
 import './projects.scss';
+
+const notCreateProjectRoute = /\/projects(?!\/create$).*/;
 
 class ProjectsPage extends Component {
 	constructor(props) {
@@ -23,10 +29,17 @@ class ProjectsPage extends Component {
 	render() {
 		return (
 			<section className="projects-page">
-				<ProjectPreviewListContainer />
+				<Route
+					path={notCreateProjectRoute}
+					component={ProjectPreviewListContainer}
+				/>
 				<Route
 					path={PREVIEW_PROJECT_ROUTE}
 					component={ProjectContainer}
+				/>
+				<Route
+					path={CREATE_PROJECT_ROUTE}
+					component={CreateProjectContainer}
 				/>
 			</section>
 		);

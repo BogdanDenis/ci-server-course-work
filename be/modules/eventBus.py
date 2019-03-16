@@ -24,6 +24,6 @@ class EventBus:
 		try:
 			self.listeners.get(event).remove(listener)
 		except Exception as e:
-			print e
+			print (e)
 
 EVENT_BUS = EventBus()

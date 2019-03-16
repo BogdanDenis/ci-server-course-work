@@ -47,7 +47,11 @@ def getProjectsLastCommit(key):
 
 	if project == None:
 		return None
-	return project.lastCommit.encode('utf-8')
+
+	if project.lastCommit == None:
+		return ''
+
+	return project.lastCommit
 
 def saveLastCommit(key, commit):
 	project = getProjectByKey(key)
@@ -71,13 +75,16 @@ def addBuild(key, build):
 def getProjectsBuilds(_id):
 	project = getProjectById(_id)
 
-	builds = map(lambda b : mongoToDict(Build.objects(id=b.id)[0]), project.builds)
+	builds = list(map(lambda b : mongoToDict(Build.objects(id=b.id)[0]), project.builds))
 
 	return builds
 
 def getProjectsLastBuild(key):
 	project = getProjectByKey(key)
 	builds = getProjectsBuilds(project['id'])
+
+	if len(builds) == 0:
+		return None
 
 	lastBuild = builds[len(builds) - 1]
 

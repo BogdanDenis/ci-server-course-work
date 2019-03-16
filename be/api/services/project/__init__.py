@@ -9,7 +9,7 @@ from constants.events import EVENTS
 @app.route('/project', methods=['GET'])
 def getProjects():
 	projects = projectDao.getProjects()
-	return jsonify(map(lambda proj: mongoToDict(proj), projects))
+	return jsonify(list(map(lambda proj: mongoToDict(proj), projects)))
 
 @app.route('/project/<_id>', methods=['GET'])
 def getProjectById(_id):
@@ -29,8 +29,6 @@ def createProject():
 def getProjectsBuilds(_id):
 	builds = projectDao.getProjectsBuilds(_id)
 
-	print(builds[len(builds) - 1])
-
 	return jsonify(builds)
 
 @app.route('/project/<_id>/builds/<buildId>', methods=['GET'])
@@ -45,9 +43,10 @@ def getProjectsBuild(_id, buildId):
 def rebuildProject(_id):
 	builds = projectDao.getProjectsBuilds(_id)
 
-	build = builds[len(builds) - 1]
+	if len(builds) == 0:
+		return '', 404
 
-	print (build)
+	build = builds[len(builds) - 1]
 
 	if build['status'] == 'pending':
 		return 'Build is already in progress!', 412, {'Content-Type': 'text/plain'}
