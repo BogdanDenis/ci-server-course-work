@@ -104,6 +104,11 @@ class Steps extends Component {
 		this.setState({
 			steps: [...this.state.initialSteps],
 		});
+		const {
+			onCancel,
+		} = this.props;
+
+		onCancel();
 	}
 
 	render() {

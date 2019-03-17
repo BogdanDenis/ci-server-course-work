@@ -11,13 +11,12 @@ from api.services.build import buildDao
 from modules.eventBus import EVENT_BUS as EventBus
 from constants.events import EVENTS
 
-_cliProvider = None
-
-if sys.platform == 'linux' or sys.platform == 'linux2':
-	_cliProvider = cliProvider.createCli("terminal-cli")
-elif sys.platform == 'win32' or sys.platform == 'win64':
-	#_cliProvider = cliProvider.createCli("win32_COM")
-	_cliProvider = cliProvider.createCli("terminal-cli")
+def createCli():
+	if sys.platform == 'linux' or sys.platform == 'linux2':
+		return cliProvider.createCli("terminal-cli")
+	elif sys.platform == 'win32' or sys.platform == 'win64':
+		#return cliProvider.createCli("win32_COM")
+		return cliProvider.createCli("terminal-cli")
 
 
 
@@ -41,8 +40,9 @@ class BuildAgent:
 		self.steps = configuration['steps']
 		self.output = []
 		self.buildId = None
+		self._cliProvider = createCli()
 
-		_cliProvider.setOutputListener(self.notifyAboutOutputLine)
+		self._cliProvider.setOutputListener(self.notifyAboutOutputLine)
 
 		for step in self.steps:
 			command = step.split()[0]
@@ -172,7 +172,7 @@ class BuildAgent:
 		self.notifyAboutOutputLine(fetchMsg)
 
 		try:
-			_cliProvider.run('git fetch', self.repoPath)
+			self._cliProvider.run('git fetch', self.repoPath)
 
 			return 0
 		except ValueError as e:
@@ -187,7 +187,7 @@ class BuildAgent:
 		self.notifyAboutOutputLine(pullMsg)
 
 		try:
-			_cliProvider.run('git pull', self.repoPath)
+			self._cliProvider.run('git pull', self.repoPath)
 
 			return 0
 		except ValueError as e:
@@ -202,7 +202,7 @@ class BuildAgent:
 		self.notifyAboutOutputLine(checkoutMsg)
 
 		try:
-			_cliProvider.run('git checkout origin/{branch}'.format(branch=self.branch), self.repoPath)
+			self._cliProvider.run('git checkout origin/{branch}'.format(branch=self.branch), self.repoPath)
 
 			return 0
 		except ValueError as e:
@@ -217,7 +217,7 @@ class BuildAgent:
 		self.notifyAboutOutputLine(checkoutMsg)
 
 		try:
-			_cliProvider.run('git checkout {commit}'.format(commit=commit), self.repoPath)
+			self._cliProvider.run('git checkout {commit}'.format(commit=commit), self.repoPath)
 
 			return 0
 		except ValueError as e:
@@ -228,7 +228,7 @@ class BuildAgent:
 
 	def getLastCommit(self):
 		try:
-			output = _cliProvider.run('git rev-parse HEAD', self.repoPath)
+			output = self._cliProvider.run('git rev-parse HEAD', self.repoPath)
 			commit = output.replace('\n', '')
 			return commit
 		except ValueError as e:
@@ -239,7 +239,7 @@ class BuildAgent:
 
 	def getLastCommitMessage(self):
 		try:
-			output = _cliProvider.run('git log -1 --pretty=%B', self.repoPath)
+			output = self._cliProvider.run('git log -1 --pretty=%B', self.repoPath)
 			message = output.replace('\n', '').encode('utf-8')
 			return message
 		except ValueError as e:
@@ -250,7 +250,7 @@ class BuildAgent:
 
 	def getLastCommitAuthor(self):
 		try:
-			output = _cliProvider.run('git log -1 --pretty=format:"%an (%ae)"', self.repoPath)
+			output = self._cliProvider.run('git log -1 --pretty=format:"%an (%ae)"', self.repoPath)
 			author = output.replace('\n', '').encode('utf-8')
 			return author
 		except ValueError as e:
@@ -379,14 +379,14 @@ class BuildAgent:
 
 				try:
 					if command == "COPY":
-						_cliProvider.copy(arguments[0], arguments[1], self.cwd)
+						self._cliProvider.copy(arguments[0], arguments[1], self.cwd)
 					elif command == "WORKDIR":
-						code = _cliProvider.workdir(arguments[0], self.cwd)
+						code = self._cliProvider.workdir(arguments[0], self.cwd)
 						print (code)
 						if code == 0:
 							self.cwd = os.path.normpath(os.path.join(self.cwd, arguments[0]))
 					elif command == "RUN":
-						_cliProvider.run(" ".join(arguments), self.cwd)
+						self._cliProvider.run(" ".join(arguments), self.cwd)
 				except ValueError as e:
 					self.printStepFail(step, e)
 					return e

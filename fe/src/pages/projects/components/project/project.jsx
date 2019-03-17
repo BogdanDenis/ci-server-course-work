@@ -126,6 +126,7 @@ class Project extends Component {
 					steps={steps}
 					editMode={inEditMode}
 					onStepsSave={steps => this.handleStepsSave(steps)}
+					onCancel={() => this.handleSettingsClicked()}
 				/>
 				{this.renderBuildPreviews()}
 				<div className="active-project__buttons">

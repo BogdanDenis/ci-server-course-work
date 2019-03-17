@@ -8,7 +8,7 @@ import {
 } from './pages';
 import {
 	MenuContainer,
-	Header,
+	HeaderContainer,
 } from './components';
 import * as routes from './constants/routes';
 
@@ -17,7 +17,7 @@ class App extends Component {
 		return (
 			<>
 				<MenuContainer />
-				<Header />
+				<HeaderContainer />
 				<div className="app">
 					<Route
 						path={routes.PROJECTS_ROUTE}

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 
 import {
 	ProjectPreviewListContainer,
@@ -33,14 +33,16 @@ class ProjectsPage extends Component {
 					path={notCreateProjectRoute}
 					component={ProjectPreviewListContainer}
 				/>
-				<Route
-					path={PREVIEW_PROJECT_ROUTE}
-					component={ProjectContainer}
-				/>
-				<Route
-					path={CREATE_PROJECT_ROUTE}
-					component={CreateProjectContainer}
-				/>
+				<Switch>
+					<Route
+						path={CREATE_PROJECT_ROUTE}
+						component={CreateProjectContainer}
+					/>
+					<Route
+						path={PREVIEW_PROJECT_ROUTE}
+						component={ProjectContainer}
+					/>
+				</Switch>
 			</section>
 		);
 	}
