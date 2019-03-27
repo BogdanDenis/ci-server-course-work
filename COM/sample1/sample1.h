@@ -91,6 +91,22 @@ EXTERN_C const IID IID_ICGreet;
             /* [in] */ BSTR name,
             /* [retval][out] */ BSTR *retstr) = 0;
         
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE WORKDIR( 
+            /* [in] */ BSTR dir,
+            /* [in] */ BSTR cwd,
+            /* [retval][out] */ BSTR *retstr) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE COPY( 
+            /* [in] */ BSTR what,
+            /* [in] */ BSTR to,
+            /* [in] */ BSTR cwd,
+            /* [retval][out] */ BSTR *retstr) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE RUN( 
+            /* [in] */ BSTR cmd,
+            /* [in] */ BSTR cwd,
+            /* [retval][out] */ BSTR *retstr) = 0;
+        
     };
     
     
@@ -154,6 +170,25 @@ EXTERN_C const IID IID_ICGreet;
             /* [in] */ BSTR name,
             /* [retval][out] */ BSTR *retstr);
         
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *WORKDIR )( 
+            ICGreet * This,
+            /* [in] */ BSTR dir,
+            /* [in] */ BSTR cwd,
+            /* [retval][out] */ BSTR *retstr);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *COPY )( 
+            ICGreet * This,
+            /* [in] */ BSTR what,
+            /* [in] */ BSTR to,
+            /* [in] */ BSTR cwd,
+            /* [retval][out] */ BSTR *retstr);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *RUN )( 
+            ICGreet * This,
+            /* [in] */ BSTR cmd,
+            /* [in] */ BSTR cwd,
+            /* [retval][out] */ BSTR *retstr);
+        
         END_INTERFACE
     } ICGreetVtbl;
 
@@ -192,6 +227,15 @@ EXTERN_C const IID IID_ICGreet;
 
 #define ICGreet_SayHello(This,name,retstr)	\
     ( (This)->lpVtbl -> SayHello(This,name,retstr) ) 
+
+#define ICGreet_WORKDIR(This,dir,cwd,retstr)	\
+    ( (This)->lpVtbl -> WORKDIR(This,dir,cwd,retstr) ) 
+
+#define ICGreet_COPY(This,what,to,cwd,retstr)	\
+    ( (This)->lpVtbl -> COPY(This,what,to,cwd,retstr) ) 
+
+#define ICGreet_RUN(This,cmd,cwd,retstr)	\
+    ( (This)->lpVtbl -> RUN(This,cmd,cwd,retstr) ) 
 
 #endif /* COBJMACROS */
 

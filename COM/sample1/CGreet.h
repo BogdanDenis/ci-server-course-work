@@ -29,6 +29,9 @@ END_COM_MAP()
 // ICGreet
 public:
 	STDMETHOD(SayHello)(/*[in]*/ BSTR name, /*[out,retval]*/ BSTR *retstr);
+	STDMETHOD(WORKDIR)(/*[in]*/ BSTR dir, /*[in]*/ BSTR cwd, /*[out,retval]*/ BSTR *retstr);
+	STDMETHOD(COPY)(/*[in]*/ BSTR what, /*[in]*/ BSTR to, /*[in]*/ BSTR cwd, /*[out,retval]*/ BSTR *retstr);
+	STDMETHOD(RUN)(/*[in]*/ BSTR cmd, /*[in]*/ BSTR cwd, /*[out,retval]*/ BSTR *retstr);
 };
 
 #endif //__CGREET_H_

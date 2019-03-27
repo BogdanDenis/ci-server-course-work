@@ -1,5 +1,37 @@
-﻿  CGreet.cpp
-c:\users\denys_bohdan\downloads\com_demo\com_demo3\sample1\cgreet.cpp(15): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+﻿  Processing .\sample1.idl
+  sample1.idl
+  Processing C:\Program Files (x86)\Windows Kits\10\Include\10.0.17134.0\um\oaidl.idl
+  oaidl.idl
+  Processing C:\Program Files (x86)\Windows Kits\10\Include\10.0.17134.0\um\objidl.idl
+  objidl.idl
+  Processing C:\Program Files (x86)\Windows Kits\10\Include\10.0.17134.0\um\unknwn.idl
+  unknwn.idl
+  Processing C:\Program Files (x86)\Windows Kits\10\Include\10.0.17134.0\shared\wtypes.idl
+  wtypes.idl
+  Processing C:\Program Files (x86)\Windows Kits\10\Include\10.0.17134.0\shared\wtypesbase.idl
+  wtypesbase.idl
+  Processing C:\Program Files (x86)\Windows Kits\10\Include\10.0.17134.0\shared\basetsd.h
+  basetsd.h
+  Processing C:\Program Files (x86)\Windows Kits\10\Include\10.0.17134.0\shared\guiddef.h
+  guiddef.h
+  Processing C:\Program Files (x86)\Windows Kits\10\Include\10.0.17134.0\um\ocidl.idl
+  ocidl.idl
+  Processing C:\Program Files (x86)\Windows Kits\10\Include\10.0.17134.0\um\oleidl.idl
+  oleidl.idl
+  Processing C:\Program Files (x86)\Windows Kits\10\Include\10.0.17134.0\um\servprov.idl
+  servprov.idl
+  Processing C:\Program Files (x86)\Windows Kits\10\Include\10.0.17134.0\um\urlmon.idl
+  urlmon.idl
+  Processing C:\Program Files (x86)\Windows Kits\10\Include\10.0.17134.0\um\msxml.idl
+  msxml.idl
+  Processing C:\Program Files (x86)\Windows Kits\10\Include\10.0.17134.0\um\oaidl.acf
+  oaidl.acf
+  Processing C:\Program Files (x86)\Windows Kits\10\Include\10.0.17134.0\um\ocidl.acf
+  ocidl.acf
+  StdAfx.cpp
+  CGreet.cpp
+c:\users\denys_bohdan\appdata\local\programs\git\ci-server-course-work\com\sample1\cgreet.cpp(25): warning C4101: 'buffer': unreferenced local variable
+c:\users\denys_bohdan\appdata\local\programs\git\ci-server-course-work\com\sample1\cgreet.cpp(35): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.17134.0\ucrt\stdio.h(1774): note: see declaration of 'sprintf'
   sample1.cpp
   Generating Code...
@@ -8,4 +40,4 @@ c:\users\denys_bohdan\downloads\com_demo\com_demo3\sample1\cgreet.cpp(15): warni
 .\sample1.def : warning LNK4222: exported symbol 'DllRegisterServer' should not be assigned an ordinal
 .\sample1.def : warning LNK4222: exported symbol 'DllUnregisterServer' should not be assigned an ordinal
      Creating library .\ReleaseMinDependency\sample1.lib and object .\ReleaseMinDependency\sample1.exp
-  sample1.vcxproj -> C:\Users\Denys_Bohdan\Downloads\COM_demo\COM_Demo3\sample1\.\ReleaseMinDependency\sample1.dll
+  sample1.vcxproj -> C:\Users\Denys_Bohdan\AppData\Local\Programs\Git\ci-server-course-work\COM\sample1\.\ReleaseMinDependency\sample1.dll

@@ -16,6 +16,9 @@ import "ocidl.idl";
 	interface ICGreet : IDispatch
 	{
 		[id(1), helpstring("method SayHello")] HRESULT SayHello([in] BSTR name, [out,retval] BSTR *retstr);
+		[id(2), helpstring("method WORKDIR")] HRESULT WORKDIR([in] BSTR dir, [in] BSTR cwd, [out, retval] BSTR *retstr);
+		[id(3), helpstring("method COPY")] HRESULT COPY([in] BSTR what, [in] BSTR to, [in] BSTR cwd, [out, retval] BSTR *retstr);
+		[id(4), helpstring("method RUN")] HRESULT RUN([in] BSTR cmd, [in] BSTR cwd, [out, retval] BSTR *retstr);
 	};
 
 [
