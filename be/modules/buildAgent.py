@@ -6,6 +6,7 @@ import traceback
 import os
 import json
 from modules import cliProvider, helpers
+from modules.reporters import outlook
 from api.services.project import projectDao
 from api.services.build import buildDao
 from modules.eventBus import EVENT_BUS as EventBus
@@ -352,6 +353,14 @@ class BuildAgent:
 		})
 		projectDao.setProjectStatus(self.key, status)
 
+		outlook.notifyViaEmail({
+			"to": "denys_bohdan@epam.com",
+			"build": {
+				"status": status,
+				"output": '\n'.join(self.output)
+			},
+			"projectKey": self.key
+		})
 
 		EventBus.publish(EVENTS['WS_NOTIFY'], json.dumps({
 			'type': 'BUILD_STATUS_CHANGE',

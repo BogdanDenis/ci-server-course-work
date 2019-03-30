@@ -1,2 +1,2 @@
-export const API_ENDPOINT = 'http://localhost:5000';
+export const API_ENDPOINT = 'http://localhost:5009';
 export const WS_SERVER = 'ws://localhost:4570';
