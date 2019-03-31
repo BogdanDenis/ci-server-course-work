@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import { CREATE_PROJECT_ROUTE } from '../../constants/routes';
+import { API_ENDPOINT } from '../../constants/endpoints'
 import './header.scss';
 
 class Header extends Component {
@@ -19,6 +20,7 @@ class Header extends Component {
 				>
 					Create a project
 				</button>
+				<a href={`${API_ENDPOINT}/report`}>Download a report</a>
 			</header>
 		);
 	}

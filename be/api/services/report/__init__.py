@@ -6,7 +6,7 @@ from modules.reporters.excel import generateReport
 from modules.helpers import mongoToDict
 
 
-@app.route('/report', methods=['POST'])
+@app.route('/report', methods=['GET'])
 def getReport():
     builds = buildDao.getBuilds()
     builds = list(map(lambda build: mongoToDict(build), builds))
