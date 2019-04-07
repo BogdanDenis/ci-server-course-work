@@ -6,7 +6,6 @@ import traceback
 import os
 import json
 from modules import cliProvider, helpers
-from modules.reporters import outlook
 from api.services.project import projectDao
 from api.services.build import buildDao
 from modules.eventBus import EVENT_BUS as EventBus
@@ -34,6 +33,7 @@ class BuildAgent:
 	def __init__(self, configuration):
 		self.id = ++_id
 		self.key = configuration['key']
+		self.link = configuration['repoLink']
 		self.repoPath = configuration['repoPath']
 		self.cwd = configuration['repoPath']
 		self.branch = configuration['branch']
@@ -60,6 +60,13 @@ class BuildAgent:
 		EventBus.subscribe(EVENTS['NEW_BUILD_ADDED'], handleNewBuildAdded)
 		EventBus.subscribe(EVENTS['PROJECT_UPDATED'], self.reconfigureAfterProjectChange)
 
+		if not self.isRepoCloned() and self.link != None and self.link != '':
+			self.cloneRepository()
+
+		self.cwd = '/usr/repos/{key}'.format(key=self.key)
+		self.repoPath = self.cwd
+
+
 	def reconfigureAfterProjectChange(self, project):
 		if project['key'] != self.key:
 			return
@@ -75,6 +82,8 @@ class BuildAgent:
 		self.steps = steps
 
 	def notifyAboutOutputLine(self, line):
+		print (line)
+
 		data = {
 			'projectKey': self.key,
 			'line': line
@@ -100,8 +109,7 @@ class BuildAgent:
 
 				build = projectDao.getProjectsLastBuild(self.key)
 
-				if build != None:
-					if build['status'] == 'pending':
+				if build != None and build['status'] == 'pending':
 						continue
 
 				self.fetchChanges()
@@ -147,6 +155,9 @@ class BuildAgent:
 		thread = threading.Thread(target=self.startPolling, args=())
 		thread.start()
 
+	def isRepoCloned(self):
+		return os.path.isdir('/usr/repos/{key}'.format(key=self.key))
+
 	def printStepFail(self, step, exception):
 		outputTemplate = 'Build step "{step}" failed. Uncaught exception {exception}'
 		output = outputTemplate.format(step=step, exception=exception)
@@ -166,6 +177,21 @@ class BuildAgent:
 
 		print (message)
 		self.notifyAboutOutputLine(message)
+
+	def cloneRepository(self):
+		cloneMsg = 'Cloning repository'
+		print (cloneMsg)
+
+		try:
+			self._cliProvider.run('git clone {link} {key}'.format(link=self.link, key=self.key), '/usr/repos')
+
+			return 0
+
+		except ValueError as e:
+			excMsg = 'Cound not clone repository. Uncaught exception {e}'.format(e=e)
+			print (excMsg)
+			self.notifyAboutOutputLine(excMsg)
+			return e
 
 	def fetchChanges(self):
 		fetchMsg = 'Fetching changes...'
@@ -352,15 +378,6 @@ class BuildAgent:
 			'status': status
 		})
 		projectDao.setProjectStatus(self.key, status)
-
-		outlook.notifyViaEmail({
-			"to": "denys_bohdan@epam.com",
-			"build": {
-				"status": status,
-				"output": '\n'.join(self.output)
-			},
-			"projectKey": self.key
-		})
 
 		EventBus.publish(EVENTS['WS_NOTIFY'], json.dumps({
 			'type': 'BUILD_STATUS_CHANGE',

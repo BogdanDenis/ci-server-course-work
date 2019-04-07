@@ -1,3 +1,3 @@
 from mongoengine import connect
 
-connect('ciserver', alias='default')
+connect('ciserver', host='mongodb', port=27017)

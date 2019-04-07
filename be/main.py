@@ -19,6 +19,7 @@ def initBuildAgent(project):
 		steps = []
 	agent = buildAgent.BuildAgent({
 		'key': project['key'],
+		'repoLink': project['repoLink'],
 		'repoPath': project['repoPath'],
 		'branch': project['branch'],
 		'pollTimeout': project['pollTimeout'],

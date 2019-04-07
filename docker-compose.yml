@@ -1,0 +1,30 @@
+version: '2'
+services:
+  api:
+    build:
+      context: ./be
+      dockerfile: Dockerfile
+    container_name: "ci-server-api"
+    image: "ubuntu/latest"
+    ports:
+      - "5000:8080"
+      - "5678:5678"
+    links:
+      - mongodb
+    volumes:
+      - /home/dbohdan/repos:/usr/repos
+    depends_on:
+      - mongodb
+  mongodb:
+    image: mongo:3.4-jessie
+    container_name: "mongodb"
+    environment:
+      - MONGO_DATA_DIR=/data/db
+    volumes:
+      - /data/db:/data/db
+    expose:
+      - "27017"
+    ports:
+      - "27017:27017"
+    command: mongod --smallfiles
+

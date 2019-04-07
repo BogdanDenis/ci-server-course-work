@@ -13,6 +13,7 @@ class CreateProject extends Component {
 		this.state = {
 			key: '',
 			name: '',
+			repoLink: '',
 			repoPath: '',
 			branch: '',
 			pollTimeout: 0,
@@ -83,6 +84,16 @@ class CreateProject extends Component {
 							id="name"
 							placeholder="Project name"
 							onChange={e => this.setStateField('name', e.target.value)}
+						/>
+					</div>
+					<div className="form-group">
+						<label for="repoPath">Repository url</label>
+						<input
+							type="text"
+							className="form-control"
+							id="repoLink"
+							placeholder="Repository url"
+							onChange={e => this.setStateField('repoLink', e.target.value)}
 						/>
 					</div>
 					<div className="form-group">

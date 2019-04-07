@@ -8,7 +8,8 @@ from modules.helpers import mongoToDict
 class Project(Document):
 	key = StringField(max_length=120, required=True, unique=True)
 	name = StringField(max_length=120, required=True)
-	repoPath = StringField(max_length=1000, required=True)
+	repoLink = StringField(max_length=1000, required=False)
+	repoPath = StringField(max_length=1000, required=False)
 	branch = StringField(max_length=120, required=True)
 	pollTimeout = IntField(min_value=1)
 	lastCommit = StringField(max_length=120)
