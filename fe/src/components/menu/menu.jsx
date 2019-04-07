@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 
 import { Icon } from '../../components';
+import { LinkContainer } from '../';
 import { MenuItemContainer } from './menu-item-container';
 
 import './menu.scss';
@@ -23,12 +24,16 @@ class Menu extends Component {
 					<MenuItemContainer
 						route={'/'}
 					>
-						<Icon icon={'code'}></Icon>
+						<LinkContainer href="/projects">
+							<Icon icon={'code'}></Icon>
+						</LinkContainer>
 					</MenuItemContainer>
 					<MenuItemContainer
 						route={'/builds'}
 					>
-						<Icon icon={'tasks'}></Icon>
+						<LinkContainer href="/builds">
+							<Icon icon={'tasks'}></Icon>
+						</LinkContainer>
 					</MenuItemContainer>
 					<MenuItemContainer
 						route={'/settings'}

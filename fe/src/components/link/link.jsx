@@ -5,6 +5,8 @@ import './link.scss';
 class Link extends Component {
 	constructor(props) {
 		super(props);
+
+		this.redirect = this.redirect.bind(this);
 	}
 
 	redirect(e) {
@@ -29,7 +31,7 @@ class Link extends Component {
 			<a
 				href={href}
 				className={`link ${classes}`}
-				onClick={e => this.redirect(e)}
+				onClick={this.redirect}
 			>{children}</a>
 		);
 	}
