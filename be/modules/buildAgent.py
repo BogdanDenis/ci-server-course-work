@@ -63,8 +63,9 @@ class BuildAgent:
 		if not self.isRepoCloned() and self.link != None and self.link != '':
 			self.cloneRepository()
 
-		self.cwd = '/usr/repos/{key}'.format(key=self.key)
-		self.repoPath = self.cwd
+		if self.repoPath is None or self.repoPath == '':
+			self.cwd = '/usr/repos/{key}'.format(key=self.key)
+			self.repoPath = self.cwd
 
 
 	def reconfigureAfterProjectChange(self, project):

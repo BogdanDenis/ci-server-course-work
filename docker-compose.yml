@@ -12,7 +12,7 @@ services:
     links:
       - mongodb
     volumes:
-      - /home/dbohdan/repos:/usr/repos
+      - E:\VUE-MF-repo\vuee-supp:/usr/repos/vuee-supp
     depends_on:
       - mongodb
   mongodb:
